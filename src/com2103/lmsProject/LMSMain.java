@@ -15,15 +15,15 @@ public class LMSMain {
             Statement stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery("SELECT * FROM student_details");
             ResultSetMetaData rsmd = rs.getMetaData();
-            String row = "";
+            StringBuilder row = new StringBuilder();
             for (int i = 1; i <= rsmd.getColumnCount(); i++) {
-                row+=(rsmd.getColumnLabel(i)+"\t");
+                row.append(rsmd.getColumnLabel(i)).append("\t");
             }
             System.out.println(row);
             while (rs.next()) {
-                row = "";
+                row = new StringBuilder();
                 for (int i = 1; i <= rsmd.getColumnCount(); i++) {
-                    row += (rs.getString(i) + "\t");
+                    row.append(rs.getString(i)).append("\t");
                 }
                 System.out.println(row);
             }
