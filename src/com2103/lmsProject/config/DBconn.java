@@ -6,7 +6,7 @@ import java.sql.DriverManager;
 
 public class DBconn {
 
-    private final String DB_URL = "jdbc:mysql://localhost:3306/hsu?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC";
+    private final String DB_URL = "jdbc:mysql://localhost:3306/lms?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC";
     private final String DB_USER = "root";
     private final String DB_PASS = "szehong26";
 
