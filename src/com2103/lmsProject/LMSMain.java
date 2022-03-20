@@ -13,7 +13,7 @@ public class LMSMain {
         Connection conn = db.getConnection();
         try {
             Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery("SELECT * FROM student_details");
+            ResultSet rs = stmt.executeQuery("SELECT * FROM users");
             ResultSetMetaData rsmd = rs.getMetaData();
             StringBuilder row = new StringBuilder();
             for (int i = 1; i <= rsmd.getColumnCount(); i++) {
