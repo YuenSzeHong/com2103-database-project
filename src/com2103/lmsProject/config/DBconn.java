@@ -12,18 +12,16 @@ public class DBconn {
 
     private Connection connection;
 
-    public void init() {
+    public DBconn() {
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
             connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASS);
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println("SQL connection Error: " + e.getMessage());
         }
     }
 
     public Connection getConnection() {
-        if (connection == null)
-            init();
         return connection;
     }
 }

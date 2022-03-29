@@ -1,13 +1,15 @@
 package com2103.lmsProject;
+
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 
 public class usersPage extends JFrame {
 
@@ -24,39 +26,42 @@ public class usersPage extends JFrame {
         this.con = con;
 
 
-        searchButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                try {
-                    String search = textField1.getText();
+        searchButton.addActionListener(e -> {
+            try {
+                String search = textField1.getText();
 
-                    PreparedStatement ps = con.prepareStatement("select * from users u where u.user_id LIKE ?");
-                    ps.setString(1, "%" + search + "%");
-                    System.out.println(ps);
-                    ResultSet rs = ps.executeQuery();
-                    ResultSetMetaData rsmd = rs.getMetaData();
+                PreparedStatement ps = con.prepareStatement(
+                        "select u.user_id, u.user_name, r.rank_name, r.borrow_period, r.daily_fine from " +
+                        "borrow_rule r, " +
+                        "users u " +
+                        "where u.rule_id = r.rule_id and " +
+                        "u.user_id LIKE ?");
+                ps.setString(1, "%" + search + "%");
+                System.out.println(ps);
+                ResultSet rs = ps.executeQuery();
+                ResultSetMetaData rsmd = rs.getMetaData();
 
-                    tbl_user.setModel(new DefaultTableModel());
-                    DefaultTableModel model = (DefaultTableModel) tbl_user.getModel();
-                    int cols = rsmd.getColumnCount();
-                    String[] colName = new String[cols];
-                    for (int i = 0; i < cols; i++)
-                        colName[i] = rsmd.getColumnLabel(i + 1);
-                    model.setColumnIdentifiers(colName);
+                tbl_user.setModel(new DefaultTableModel());
+                DefaultTableModel model = (DefaultTableModel) tbl_user.getModel();
+                int cols = rsmd.getColumnCount();
+                String[] colName = new String[cols];
+                for (int i = 0; i < cols; i++)
+                    colName[i] = rsmd.getColumnLabel(i + 1);
+                model.setColumnIdentifiers(colName);
 
-                    while (rs.next()) {
-                        String userId = rs.getString(1);
-                        String userName = rs.getString(2);
-                        String ruleId = rs.getString(3);
-
-                        String[] row = {userId, userName, ruleId};
-                        model.addRow(row);
-                    }
-
-
-                } catch (Exception exception) {
-                    System.out.println("Error: " + exception.getMessage());
+                while (rs.next()) {
+                    String userId = rs.getString(1);
+                    String userName = rs.getString(2);
+                    String ruleId = rs.getString(3);
+                    int borrowPeriod = rs.getInt(4);
+                    float dailyFine = rs.getFloat(5);
+                    String[] row = {userId, userName, ruleId, String.valueOf(borrowPeriod), String.format("%.2f", dailyFine)};
+                    model.addRow(row);
                 }
+
+
+            } catch (Exception exception) {
+                System.out.println("Error: " + exception.getMessage());
             }
         });
     }

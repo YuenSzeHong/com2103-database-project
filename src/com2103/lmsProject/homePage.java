@@ -23,11 +23,9 @@ public class homePage extends JFrame {
          */
 
         usersPage users = new usersPage(this.con);
-        JFrame frame = new JFrame();
         tabbedPanel.addTab("users", users.getter());
 
         book books = new book(this.con);
-        JFrame frame2 = new JFrame();
         tabbedPanel.addTab("books", books.getter());
 
 
