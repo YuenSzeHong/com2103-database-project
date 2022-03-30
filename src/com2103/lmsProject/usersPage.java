@@ -43,6 +43,7 @@ public class usersPage extends JFrame {
 
                 tbl_user.setModel(new DefaultTableModel());
                 DefaultTableModel model = (DefaultTableModel) tbl_user.getModel();
+
                 int cols = rsmd.getColumnCount();
                 String[] colName = new String[cols];
                 for (int i = 0; i < cols; i++)
