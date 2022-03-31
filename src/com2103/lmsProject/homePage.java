@@ -28,6 +28,9 @@ public class homePage extends JFrame {
         book books = new book(this.con);
         tabbedPanel.addTab("books", books.getter());
 
+        borrowedPage borrowedPages = new borrowedPage(this.con);
+        tabbedPanel.addTab("borrowed book", borrowedPages.getter());
+
 
     }
 
