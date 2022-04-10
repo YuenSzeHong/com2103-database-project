@@ -34,6 +34,12 @@ public class homePage extends JFrame {
         recordPage recordPages = new recordPage(this.con);
         tabbedPanel.addTab("record", recordPages.getter());
 
+        datePage datePages = new datePage(this.con);
+        tabbedPanel.addTab("date", datePages.getter());
+
+
+
+
 
     }
 
