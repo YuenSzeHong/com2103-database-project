@@ -12,7 +12,7 @@ file name should like this
 `lms.datadump.15.03.2022.sql`\
 to be changed
 ```bash
-mysql -u lms -p lms < lms.datadump.<date in yyyy.mm.dd>.sql
+mysql -u lms -p lms < lms.datadump.<date in dd.mm.yyyy>.sql
 ```
 create a user named `lms` with password `lmsroot` \
 then grant that account with permissions. 
