@@ -34,6 +34,8 @@ public class homePage extends JFrame {
         recordPage recordPages = new recordPage(this.con);
         tabbedPanel.addTab("record", recordPages.getter());
 
+        rankPage rankPages = new rankPage(this.con);
+        tabbedPanel.addTab("rank", rankPages.getter());
 
     }
 
