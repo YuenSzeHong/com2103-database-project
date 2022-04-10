@@ -5,55 +5,74 @@ import com.intellij.uiDesigner.core.GridLayoutManager;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.*;
 import java.sql.Connection;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneOffset;
 
 public class datePage extends JFrame {
     private Connection con;
-    private JTextField textField1;
-    private JLabel dateShown;
+    private JTextField dateShown;
     private JButton enterButton;
     private JPanel Panel1;
+    private BufferedReader br;
+    private PrintWriter writer;
+    private File config;
+    private Instant currentDate;
+
 
     public datePage(Connection con) {
 
         this.con = con;
+        config = new File("date.txt");
         try {
-            FileReader reader = new FileReader("date.txt");
-            BufferedReader bufferedReader = new BufferedReader(reader);
-
-            String line;
-
-            while ((line = bufferedReader.readLine()) != null) {
-                dateShown.setText(line);
-            }
-            reader.close();
-
+            config.createNewFile();
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("Error creating date.txt");
+            System.exit(1);
+        }
+        try {
+            br = new BufferedReader(new FileReader(config));
+        } catch (FileNotFoundException e) {
+            System.out.println("Error in reading date.txt");
+            System.exit(1);
+        }
+        String line;
+        try {
+            while ((line = br.readLine()) != null) {
+                currentDate = Instant.parse(line);
+            }
+            if (currentDate == null) {
+                currentDate = Instant.now();
+                writer = new PrintWriter(config);
+                writer.println(currentDate);
+                writer.flush();
+                writer.close();
+            }
+        } catch (IOException e) {
+            System.out.println("Error in reading date.txt");
+            System.exit(1);
         }
 
+        dateShown.setText(currentDate.atZone(ZoneOffset.UTC).toLocalDate().toString());
 
-        enterButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String date = textField1.getText();
-
-                try {
-                    PrintWriter writer = new PrintWriter("date.txt");
-                    writer.print(date);
-
-                    writer.close();
-                    dateShown.setText(date);
-
-                } catch (IOException o) {
-                    o.printStackTrace();
-                }
-
-
+        enterButton.addActionListener(e -> {
+            String date = dateShown.getText();
+            try {
+                Instant dateToSet = LocalDate.parse(date).atStartOfDay().toInstant(ZoneOffset.UTC);
+                writer = new PrintWriter(config);
+                writer.print(dateToSet.toString());
+                writer.flush();
+                writer.close();
+                dateShown.setText(date);
+            } catch (IllegalArgumentException IAE) {
+                JOptionPane.showMessageDialog(null, "Invalid date format");
+                return;
+            } catch (FileNotFoundException ex) {
+                JOptionPane.showMessageDialog(null, "Error in reading date.txt");
             }
+
         });
 
 
@@ -79,22 +98,16 @@ public class datePage extends JFrame {
      */
     private void $$$setupUI$$$() {
         Panel1 = new JPanel();
-        Panel1.setLayout(new GridLayoutManager(2, 4, new Insets(0, 0, 0, 0), -1, -1));
+        Panel1.setLayout(new GridLayoutManager(1, 3, new Insets(0, 0, 0, 0), -1, -1));
         final JLabel label1 = new JLabel();
-        label1.setText("Change the date(YY/MM/DD)");
-        Panel1.add(label1, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        textField1 = new JTextField();
-        textField1.setText("");
-        Panel1.add(textField1, new GridConstraints(1, 1, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
+        label1.setText("The current date  is: (DD-MM-YYYY)");
+        Panel1.add(label1, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_NORTHWEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         enterButton = new JButton();
-        enterButton.setText("Enter");
-        Panel1.add(enterButton, new GridConstraints(1, 3, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        final JLabel label2 = new JLabel();
-        label2.setText("The current date  is:");
-        Panel1.add(label2, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        dateShown = new JLabel();
-        dateShown.setText("YY/MM/DD");
-        Panel1.add(dateShown, new GridConstraints(0, 1, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        enterButton.setText("Change");
+        Panel1.add(enterButton, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_NORTHWEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        dateShown = new JTextField();
+        dateShown.setText("");
+        Panel1.add(dateShown, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_NORTHWEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
     }
 
     /**
