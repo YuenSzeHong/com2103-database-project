@@ -33,7 +33,7 @@ public class borrowedPage extends JFrame {
 
                 //use preparedStatement instead of createStatement
                 PreparedStatement ps = con.prepareStatement("SELECT * from borrow_records where book_id LIKE ? ORDER BY book_id;");
-                ps.setString(1, searchValue);
+                ps.setString(1, "%" + searchValue + "%");
                 System.out.println(ps);
                 ResultSet rs = ps.executeQuery();
                 ResultSetMetaData rsmd = rs.getMetaData();
@@ -78,7 +78,7 @@ public class borrowedPage extends JFrame {
 
                 //use preparedStatement instead of createStatement
                 PreparedStatement ps = con.prepareStatement("SELECT * from borrow_records where borrower_id LIKE ? ORDER BY borrower_id;");
-                ps.setString(1, searchValue);
+                ps.setString(1, "%" + searchValue + "%");
                 System.out.println(ps);
                 ResultSet rs = ps.executeQuery();
                 ResultSetMetaData rsmd = rs.getMetaData();
