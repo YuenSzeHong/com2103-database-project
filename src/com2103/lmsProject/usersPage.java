@@ -7,6 +7,8 @@ import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -41,7 +43,7 @@ public class usersPage extends JFrame {
                                 "where u.rule_id = r.rule_id and " +
                                 "u.user_id LIKE ?");
                 ps.setString(1, "%" + search + "%");
-                System.out.println(ps);
+
                 ResultSet rs = ps.executeQuery();
                 ResultSetMetaData rsmd = rs.getMetaData();
 
@@ -69,7 +71,26 @@ public class usersPage extends JFrame {
                 System.out.println("Error: " + exception.getMessage());
             }
         });
+
+        submitButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    String studId = textField3.getText();
+                    String rkName = String.valueOf(comboBox1.getSelectedIndex());
+                    System.out.println(studId);
+                    System.out.println(rkName);
+                    PreparedStatement ps = con.prepareStatement("UPDATE users SET rule_id = ? WHERE user_id = ?;");
+                    ps.setString(1, rkName);
+                    ps.setString(2, studId);
+                    ps.execute();
+                } catch (Exception exception) {
+                    System.out.println("Error: " + exception.getMessage());
+                }
+            }
+        });
     }
+
 
     public JPanel getter() {
         return this.panel1;
@@ -123,6 +144,12 @@ public class usersPage extends JFrame {
         label3.setText("Rank");
         panel3.add(label3, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         comboBox1 = new JComboBox();
+        final DefaultComboBoxModel defaultComboBoxModel1 = new DefaultComboBoxModel();
+        defaultComboBoxModel1.addElement("");
+        defaultComboBoxModel1.addElement("default");
+        defaultComboBoxModel1.addElement("punishment");
+        defaultComboBoxModel1.addElement("VIP");
+        comboBox1.setModel(defaultComboBoxModel1);
         panel3.add(comboBox1, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         submitButton = new JButton();
         submitButton.setText("Submit");

@@ -8,10 +8,10 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.sql.*;
 
 public class recordPage {
     private JTable tblRecord;
@@ -67,8 +67,24 @@ public class recordPage {
             public void actionPerformed(ActionEvent e) {
                 try {
 
+                    String date = null;
+                    try {
+                        FileReader reader = new FileReader("date.txt");
+                        BufferedReader bufferedReader = new BufferedReader(reader);
+
+                        String line;
+
+                        while ((line = bufferedReader.readLine()) != null) {
+                            date = line;
+                        }
+                        reader.close();
+
+                    } catch (IOException o) {
+                        o.printStackTrace();
+                    }
+
                     PreparedStatement ps = con.prepareStatement(
-                            "SELECT u.user_name, (bpf.borrow_period - DATEDIFF(\"2022-03-13\", b.borrow_date)) AS `period remaining`, b.due_date FROM borrowed_books b, borrow_period_fine bpf, users u\n" +
+                            "SELECT u.user_name, (bpf.borrow_period - DATEDIFF(\"" + date + "\", b.borrow_date)) AS `period remaining`, b.due_date FROM borrowed_books b, borrow_period_fine bpf, users u\n" +
                                     "WHERE \n" +
                                     "b.due_date < CURDATE() AND b.borrower_id = bpf.user_id AND\n" +
                                     "b.borrower_id = u.user_id AND b.return_date IS NULL\n" +
