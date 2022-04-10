@@ -6,8 +6,10 @@ import javax.swing.*;
 import java.awt.*;
 import java.sql.Connection;
 
+
 public class LMSMain {
     public static void main(String[] args) {
+
         DBconn db = new DBconn();
         Connection conn = db.getConnection();
 
