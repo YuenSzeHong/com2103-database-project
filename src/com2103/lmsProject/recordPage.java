@@ -68,9 +68,11 @@ public class recordPage {
                 try {
 
                     PreparedStatement ps = con.prepareStatement(
-                            "select br.borrower_id, br.book_id, b.title, br.borrow_date, br.return_date from " +
-                                    "(select datediff(br.reutrn_date, br.borrow_date)>14 or return_date=null from borrow_records br, books b)" +
-                                    "where br.book_id = b.book_id");
+                            "SELECT u.user_name, (bpf.borrow_period - DATEDIFF(\"2022-03-13\", b.borrow_date)) AS `period remaining`, b.due_date FROM borrowed_books b, borrow_period_fine bpf, users u\n" +
+                                    "WHERE \n" +
+                                    "b.due_date < CURDATE() AND b.borrower_id = bpf.user_id AND\n" +
+                                    "b.borrower_id = u.user_id AND b.return_date IS NULL\n" +
+                                    "ORDER BY `period remaining` DESC;");
 
                     System.out.println(ps);
                     ResultSet rs = ps.executeQuery();
@@ -86,12 +88,10 @@ public class recordPage {
                     model.setColumnIdentifiers(colName);
 
                     while (rs.next()) {
-                        String borrower_id = rs.getString(1);
-                        String book_id = rs.getString(2);
-                        String title = rs.getString(3);
-                        String borrow_date = rs.getString(4);
-                        String return_date = rs.getString(5);
-                        String[] row = {borrower_id, book_id, title, borrow_date, return_date};
+                        String user_name = rs.getString(1);
+                        String period_remaining = rs.getString(2);
+                        String due_date = rs.getString(3);
+                        String[] row = {user_name, period_remaining, due_date};
                         model.addRow(row);
                     }
 

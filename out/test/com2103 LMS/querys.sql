@@ -37,7 +37,7 @@ b.due_date < CURDATE() AND b.borrower_id = bpf.user_id;
 SELECT u.user_name, (bpf.borrow_period - DATEDIFF("2022-03-13", b.borrow_date)) AS `period remaining`, b.due_date FROM borrowed_books b, borrow_period_fine bpf, users u
 WHERE 
 b.due_date < CURDATE() AND b.borrower_id = bpf.user_id AND
-b.borrower_id = u.user_id AND b.returned_date IS NULL
+b.borrower_id = u.user_id AND b.return_date IS NULL
 ORDER BY `period remaining` DESC;
 
 -- @block get book info
