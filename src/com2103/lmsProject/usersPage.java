@@ -17,6 +17,9 @@ public class usersPage extends JFrame {
     private JButton searchButton;
     private JTextField textField1;
     private JPanel panel1;
+    private JComboBox comboBox1;
+    private JTextField textField3;
+    private JButton submitButton;
     private Connection con;
 
 
