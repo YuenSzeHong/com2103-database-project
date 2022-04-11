@@ -5,6 +5,8 @@ import com.intellij.uiDesigner.core.GridLayoutManager;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -22,6 +24,7 @@ public class rankPage {
     private JButton removeUserButton;
     private JTextArea usersToBeAddedTextArea;
     private JButton assignButton;
+    private JButton deleteRankButton;
     private final HashMap<String, String> usersToBeAdded = new HashMap<>();
     private Connection connection;
 
@@ -144,6 +147,29 @@ public class rankPage {
             }
             addUserToRank(usersToBeAdded, rule_id);
         });
+        deleteRankButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (nameText.getText().equals("")) {
+                    JOptionPane.showMessageDialog(null, "Please enter a rank name");
+                    return;
+                }
+                try {
+                    PreparedStatement psmt = connection.prepareStatement("DELETE FROM borrow_rule WHERE rank_name = ?;");
+                    psmt.setString(1, nameText.getText());
+                    psmt.executeUpdate();
+                    JOptionPane.showMessageDialog(null, "Rank deleted successfully");
+                    clearTexts();
+                } catch (SQLException ex) {
+                    if (ex.getMessage().contains("FOREIGN KEY")) {
+                        JOptionPane.showMessageDialog(null, "Rank is currently in use, please remove users from this rank first");
+                    } else {
+                        JOptionPane.showMessageDialog(null, "Failed to delete rank");
+                        System.out.println("Error in deleting rank, Error: " + ex.getMessage());
+                    }
+                }
+            }
+        });
     }
 
     boolean UserIDInvalid(String userID) {
@@ -240,10 +266,13 @@ public class rankPage {
         mainPanel.add(usersToBeAddedTextArea, new GridConstraints(3, 1, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_WANT_GROW, null, new Dimension(150, 50), null, 0, false));
         addRankButton = new JButton();
         addRankButton.setText("Add/Update rank and Assign users");
-        mainPanel.add(addRankButton, new GridConstraints(6, 1, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        mainPanel.add(addRankButton, new GridConstraints(6, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         assignButton = new JButton();
         assignButton.setText("Assign Users to Rank");
         mainPanel.add(assignButton, new GridConstraints(7, 1, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        deleteRankButton = new JButton();
+        deleteRankButton.setText("Delete Rank");
+        mainPanel.add(deleteRankButton, new GridConstraints(6, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     }
 
     /**

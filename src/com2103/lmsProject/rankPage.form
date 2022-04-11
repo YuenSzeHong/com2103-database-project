@@ -102,7 +102,7 @@
       </component>
       <component id="e152" class="javax.swing.JButton" binding="addRankButton">
         <constraints>
-          <grid row="6" column="1" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+          <grid row="6" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
           <text value="Add/Update rank and Assign users"/>
@@ -114,6 +114,14 @@
         </constraints>
         <properties>
           <text value="Assign Users to Rank"/>
+        </properties>
+      </component>
+      <component id="f7b93" class="javax.swing.JButton" binding="deleteRankButton" default-binding="true">
+        <constraints>
+          <grid row="6" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text value="Delete Rank"/>
         </properties>
       </component>
     </children>

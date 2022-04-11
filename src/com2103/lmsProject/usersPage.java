@@ -7,12 +7,13 @@ import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
+import java.util.HashMap;
 
 public class usersPage extends JFrame {
 
@@ -20,9 +21,10 @@ public class usersPage extends JFrame {
     private JButton searchButton;
     private JTextField textField1;
     private JPanel panel1;
-    private JComboBox comboBox1;
+    private JComboBox rankCombo;
     private JTextField textField3;
     private JButton submitButton;
+    private HashMap<String, Integer> rankList;
     private Connection con;
 
 
@@ -31,6 +33,7 @@ public class usersPage extends JFrame {
 
         this.con = con;
 
+        initRankCombo();
 
         searchButton.addActionListener(e -> {
             try {
@@ -72,23 +75,55 @@ public class usersPage extends JFrame {
             }
         });
 
-        submitButton.addActionListener(new ActionListener() {
+        submitButton.addActionListener(e -> {
+            try {
+                String studId = textField3.getText();
+                int rank_id = rankList.get(rankCombo.getSelectedItem());
+                System.out.println(studId);
+                System.out.println(rank_id + 1);
+                PreparedStatement ps = con.prepareStatement("UPDATE users SET rule_id = ? WHERE user_id = ?;");
+                ps.setInt(1, rank_id);
+                ps.setString(2, studId);
+                ps.execute();
+            } catch (Exception exception) {
+                System.out.println("Error: " + exception.getMessage());
+            }
+        });
+        rankCombo.addFocusListener(new FocusAdapter() {
             @Override
-            public void actionPerformed(ActionEvent e) {
+            public void focusGained(FocusEvent e) {
                 try {
-                    String studId = textField3.getText();
-                    String rkName = String.valueOf(comboBox1.getSelectedIndex());
-                    System.out.println(studId);
-                    System.out.println(rkName);
-                    PreparedStatement ps = con.prepareStatement("UPDATE users SET rule_id = ? WHERE user_id = ?;");
-                    ps.setString(1, rkName);
-                    ps.setString(2, studId);
-                    ps.execute();
+                    PreparedStatement ps = con.prepareStatement("select * from borrow_rule");
+                    ResultSet rs = ps.executeQuery();
+
+                    rankList = new HashMap<>();
+
+                    while (rs.next()) {
+                        rankList.put(rs.getString(2), rs.getInt(1));
+                    }
+                    rankCombo.setModel(new DefaultComboBoxModel(rankList.keySet().toArray()));
                 } catch (Exception exception) {
                     System.out.println("Error: " + exception.getMessage());
                 }
+                super.focusGained(e);
             }
         });
+    }
+
+    private void initRankCombo() {
+        try {
+            PreparedStatement ps = con.prepareStatement("select * from borrow_rule");
+            ResultSet rs = ps.executeQuery();
+
+            rankList = new HashMap<>();
+
+            while (rs.next()) {
+                rankList.put(rs.getString(2), rs.getInt(1));
+            }
+            rankCombo.setModel(new DefaultComboBoxModel(rankList.keySet().toArray()));
+        } catch (Exception exception) {
+            System.out.println("Error: " + exception.getMessage());
+        }
     }
 
 
@@ -143,14 +178,10 @@ public class usersPage extends JFrame {
         final JLabel label3 = new JLabel();
         label3.setText("Rank");
         panel3.add(label3, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        comboBox1 = new JComboBox();
+        rankCombo = new JComboBox();
         final DefaultComboBoxModel defaultComboBoxModel1 = new DefaultComboBoxModel();
-        defaultComboBoxModel1.addElement("");
-        defaultComboBoxModel1.addElement("default");
-        defaultComboBoxModel1.addElement("punishment");
-        defaultComboBoxModel1.addElement("VIP");
-        comboBox1.setModel(defaultComboBoxModel1);
-        panel3.add(comboBox1, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        rankCombo.setModel(defaultComboBoxModel1);
+        panel3.add(rankCombo, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         submitButton = new JButton();
         submitButton.setText("Submit");
         panel3.add(submitButton, new GridConstraints(2, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
