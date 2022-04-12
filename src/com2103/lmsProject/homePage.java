@@ -12,32 +12,30 @@ public class homePage extends JFrame {
     private JPanel homePanel;
     private JButton button1;
     private JTabbedPane tabbedPanel;
-    private Connection con;
 
     public homePage(Connection connection) {
-        this.con = connection;
 
         /*create your Jform and add it your tabbedPanel here
           about addTab() method: addTab("yourTabbedPanelNameHere", yourJformFileName.getter())
           build getter() method in your (YourJformName).java file.
          */
 
-        usersPage users = new usersPage(this.con);
+        usersPage users = new usersPage(connection);
         tabbedPanel.addTab("users", users.getter());
 
-        book books = new book(this.con);
+        book books = new book(connection);
         tabbedPanel.addTab("books", books.getter());
 
-        borrowedPage borrowedPages = new borrowedPage(this.con);
+        borrowedPage borrowedPages = new borrowedPage(connection);
         tabbedPanel.addTab("borrowed book", borrowedPages.getter());
 
-        recordPage recordPages = new recordPage(this.con);
+        recordPage recordPages = new recordPage(connection);
         tabbedPanel.addTab("record", recordPages.getter());
 
-        datePage datePages = new datePage(this.con);
+        datePage datePages = new datePage();
         tabbedPanel.addTab("date", datePages.getter());
 
-        rankPage rankPages = new rankPage(this.con);
+        rankPage rankPages = new rankPage(connection);
         tabbedPanel.addTab("rank", rankPages.getter());
     }
 

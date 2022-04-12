@@ -7,25 +7,22 @@ import com.intellij.uiDesigner.core.Spacer;
 import javax.swing.*;
 import java.awt.*;
 import java.io.*;
-import java.sql.Connection;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
 
 public class datePage extends JFrame {
-    private Connection con;
     private JTextField dateShown;
     private JButton enterButton;
     private JPanel Panel1;
     private BufferedReader br;
     private PrintWriter writer;
-    private File config;
+    private final File config;
     private Instant currentDate;
 
 
-    public datePage(Connection con) {
+    public datePage() {
 
-        this.con = con;
         config = new File("date.txt");
         try {
             config.createNewFile();
@@ -69,7 +66,6 @@ public class datePage extends JFrame {
                 dateShown.setText(date);
             } catch (IllegalArgumentException IAE) {
                 JOptionPane.showMessageDialog(null, "Invalid date format");
-                return;
             } catch (FileNotFoundException ex) {
                 JOptionPane.showMessageDialog(null, "Error in reading date.txt");
             }

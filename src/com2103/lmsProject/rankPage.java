@@ -5,8 +5,6 @@ import com.intellij.uiDesigner.core.GridLayoutManager;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -26,7 +24,7 @@ public class rankPage {
     private JButton assignButton;
     private JButton deleteRankButton;
     private final HashMap<String, String> usersToBeAdded = new HashMap<>();
-    private Connection connection;
+    private final Connection connection;
 
     public rankPage(Connection connection) {
         usersToBeAddedTextArea.setEditable(false);
@@ -147,26 +145,23 @@ public class rankPage {
             }
             addUserToRank(usersToBeAdded, rule_id);
         });
-        deleteRankButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (nameText.getText().equals("")) {
-                    JOptionPane.showMessageDialog(null, "Please enter a rank name");
-                    return;
-                }
-                try {
-                    PreparedStatement psmt = connection.prepareStatement("DELETE FROM borrow_rule WHERE rank_name = ?;");
-                    psmt.setString(1, nameText.getText());
-                    psmt.executeUpdate();
-                    JOptionPane.showMessageDialog(null, "Rank deleted successfully");
-                    clearTexts();
-                } catch (SQLException ex) {
-                    if (ex.getMessage().contains("FOREIGN KEY")) {
-                        JOptionPane.showMessageDialog(null, "Rank is currently in use, please remove users from this rank first");
-                    } else {
-                        JOptionPane.showMessageDialog(null, "Failed to delete rank");
-                        System.out.println("Error in deleting rank, Error: " + ex.getMessage());
-                    }
+        deleteRankButton.addActionListener(e -> {
+            if (nameText.getText().equals("")) {
+                JOptionPane.showMessageDialog(null, "Please enter a rank name");
+                return;
+            }
+            try {
+                PreparedStatement psmt = connection.prepareStatement("DELETE FROM borrow_rule WHERE rank_name = ?;");
+                psmt.setString(1, nameText.getText());
+                psmt.executeUpdate();
+                JOptionPane.showMessageDialog(null, "Rank deleted successfully");
+                clearTexts();
+            } catch (SQLException ex) {
+                if (ex.getMessage().contains("FOREIGN KEY")) {
+                    JOptionPane.showMessageDialog(null, "Rank is currently in use, please remove users from this rank first");
+                } else {
+                    JOptionPane.showMessageDialog(null, "Failed to delete rank");
+                    System.out.println("Error in deleting rank, Error: " + ex.getMessage());
                 }
             }
         });

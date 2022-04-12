@@ -6,13 +6,10 @@ import com.intellij.uiDesigner.core.GridLayoutManager;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.*;
 import java.sql.*;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.time.ZoneId;
 import java.time.ZoneOffset;
 
 public class borrowedPage extends JFrame {
@@ -27,8 +24,8 @@ public class borrowedPage extends JFrame {
     private JButton borrowButton;
     private JButton returnButton;
     private FileReader reader;
-    private File file;
-    private Connection con;
+    private final File file;
+    private final Connection con;
 
     public borrowedPage(Connection con) {
 
@@ -175,21 +172,15 @@ public class borrowedPage extends JFrame {
                 System.out.println("Error: " + exception.getMessage());
             }
         });
-        borrowButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String borrower_id = borrowerIDFIeld.getText();
-                int book_id = Integer.parseInt(bookIDField.getText());
-                borrowBook(borrower_id, book_id);
-            }
+        borrowButton.addActionListener(e -> {
+            String borrower_id = borrowerIDFIeld.getText();
+            int book_id = Integer.parseInt(bookIDField.getText());
+            borrowBook(borrower_id, book_id);
         });
-        returnButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String borrower_id = borrowerIDFIeld.getText();
-                int book_id = Integer.parseInt(bookIDField.getText());
-                returnBook(borrower_id, book_id);
-            }
+        returnButton.addActionListener(e -> {
+            String borrower_id = borrowerIDFIeld.getText();
+            int book_id = Integer.parseInt(bookIDField.getText());
+            returnBook(borrower_id, book_id);
         });
     }
 
@@ -251,9 +242,8 @@ public class borrowedPage extends JFrame {
             ps.setString(1, borrower_id);
             ps.setInt(2, book_id);
             ResultSet rs = ps.executeQuery();
-            while (rs.next()) {
-                return rs.getDate(1).toString();
-            }
+            rs.next();
+            return rs.getDate(1).toString();
         } catch (Exception exception) {
             System.out.println("Error in getting return date: " + exception.getMessage());
         }

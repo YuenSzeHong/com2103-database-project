@@ -25,7 +25,7 @@ public class usersPage extends JFrame {
     private JTextField textField3;
     private JButton submitButton;
     private HashMap<String, Integer> rankList;
-    private Connection con;
+    private final Connection con;
 
 
     public usersPage(Connection con) {
@@ -129,10 +129,6 @@ public class usersPage extends JFrame {
 
     public JPanel getter() {
         return this.panel1;
-    }
-
-    private void createUIComponents() {
-        // TODO: place custom component creation code here
     }
 
     {
