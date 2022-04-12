@@ -12,6 +12,9 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.sql.*;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneOffset;
 
 public class recordPage {
     private JTable tblRecord;
@@ -67,29 +70,24 @@ public class recordPage {
             public void actionPerformed(ActionEvent e) {
                 try {
 
-                    String date = null;
-                    try {
-                        FileReader reader = new FileReader("date.txt");
-                        BufferedReader bufferedReader = new BufferedReader(reader);
+                    LocalDate date = null;
+                    FileReader reader = new FileReader("date.txt");
+                    BufferedReader bufferedReader = new BufferedReader(reader);
 
-                        String line;
+                    String line;
 
-                        while ((line = bufferedReader.readLine()) != null) {
-                            date = line;
-                        }
-                        reader.close();
-
-                    } catch (IOException o) {
-                        o.printStackTrace();
+                    while ((line = bufferedReader.readLine()) != null) {
+                        date = Instant.parse(line).atZone(ZoneOffset.UTC).toLocalDate();
                     }
+                    reader.close();
 
                     PreparedStatement ps = con.prepareStatement(
-                            "SELECT u.user_name, (bpf.borrow_period - DATEDIFF(\"" + date + "\", b.borrow_date)) AS `period remaining`, b.due_date FROM borrowed_books b, borrow_period_fine bpf, users u\n" +
+                            "SELECT u.user_name, (bpf.borrow_period - DATEDIFF(?, b.borrow_date)) AS `period remaining`, b.due_date FROM borrowed_books b, borrow_period_fine bpf, users u\n" +
                                     "WHERE \n" +
                                     "b.due_date < CURDATE() AND b.borrower_id = bpf.user_id AND\n" +
                                     "b.borrower_id = u.user_id AND b.return_date IS NULL\n" +
                                     "ORDER BY `period remaining` DESC;");
-
+                    ps.setDate(1, Date.valueOf(date));
                     System.out.println(ps);
                     ResultSet rs = ps.executeQuery();
                     ResultSetMetaData rsmd = rs.getMetaData();
@@ -105,15 +103,17 @@ public class recordPage {
 
                     while (rs.next()) {
                         String user_name = rs.getString(1);
-                        String period_remaining = rs.getString(2);
+                        String period_remaining = rs.getInt(2) == 0 ? "on Due" : (Math.abs(rs.getInt(2)) + (rs.getInt(2) > 0 ? " days remaining" : " days late"));
                         String due_date = rs.getString(3);
                         String[] row = {user_name, period_remaining, due_date};
                         model.addRow(row);
                     }
 
 
-                } catch (Exception exception) {
-                    System.out.println("Error: " + exception.getMessage());
+                } catch (SQLException sqEx) {
+                    System.out.println("Error when querying database: " + sqEx.getMessage());
+                } catch (IOException ioEx) {
+                    System.out.println("Error when reading file: " + ioEx.getMessage());
                 }
             }
         });
