@@ -185,9 +185,8 @@ public class borrowedPage extends JFrame {
     }
 
     private void returnBook(String borrower_id, int book_id) {
-        LocalDate date = null;
         try {
-            date = getLocalDate(date);
+            LocalDate date = getLocalDate();
             PreparedStatement ps = con.prepareStatement(
                     "UPDATE borrow_records SET return_date = ? " +
                             "WHERE borrower_id = ? " +
@@ -207,9 +206,8 @@ public class borrowedPage extends JFrame {
     }
 
     private void borrowBook(String borrower_id, int book_id) {
-        LocalDate date = null;
         try {
-            date = getLocalDate(date);
+            LocalDate date = getLocalDate();
             PreparedStatement ps = con.prepareStatement("INSERT INTO borrow_records(borrower_id, book_id, borrow_date) VALUES (?, ?, ?);");
             ps.setString(1, borrower_id);
             ps.setInt(2, book_id);
@@ -221,7 +219,8 @@ public class borrowedPage extends JFrame {
         }
     }
 
-    private LocalDate getLocalDate(LocalDate date) throws IOException {
+    private LocalDate getLocalDate() throws IOException {
+        LocalDate date = null;
         reader = new FileReader(file);
         BufferedReader bufferedReader = new BufferedReader(reader);
         String line;
