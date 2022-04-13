@@ -19,10 +19,11 @@ public class datePage extends JFrame {
     private PrintWriter writer;
     private final File config;
     private Instant currentDate;
+    private final homePage instance;
 
 
-    public datePage() {
-
+    public datePage(homePage instance) {
+        this.instance = instance;
         config = new File("date.txt");
         try {
             config.createNewFile();
@@ -59,6 +60,7 @@ public class datePage extends JFrame {
             String date = dateShown.getText();
             try {
                 Instant dateToSet = LocalDate.parse(date).atStartOfDay().toInstant(ZoneOffset.UTC);
+                this.instance.setCurrentDate(dateToSet);
                 writer = new PrintWriter(config);
                 writer.print(dateToSet.toString());
                 writer.flush();
@@ -71,8 +73,6 @@ public class datePage extends JFrame {
             }
 
         });
-
-
     }
 
     public JPanel getter() {

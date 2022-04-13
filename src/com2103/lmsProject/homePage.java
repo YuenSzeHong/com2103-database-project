@@ -29,6 +29,9 @@ public class homePage extends JFrame {
         borrowedPage borrowedPages = new borrowedPage(connection);
         tabbedPanel.addTab("borrowed book", borrowedPages.getter());
 
+        recordPage recordPages = new recordPage(connection);
+        tabbedPanel.addTab("record", recordPages.getter());
+
         datePage datePages = new datePage();
         tabbedPanel.addTab("date", datePages.getter());
 
