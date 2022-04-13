@@ -4,7 +4,12 @@ import com.intellij.uiDesigner.core.GridLayoutManager;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.*;
 import java.sql.Connection;
+import java.time.Instant;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 
 
 public class homePage extends JFrame {
@@ -12,6 +17,12 @@ public class homePage extends JFrame {
     private JPanel homePanel;
     private JButton button1;
     private JTabbedPane tabbedPanel;
+    private JLabel welcomeText;
+    private JLabel dateText;
+    private Instant currentDate;
+    private File config;
+    private BufferedReader br;
+    private PrintWriter writer;
 
     public homePage(Connection connection) {
 
@@ -19,6 +30,41 @@ public class homePage extends JFrame {
           about addTab() method: addTab("yourTabbedPanelNameHere", yourJformFileName.getter())
           build getter() method in your (YourJformName).java file.
          */
+
+        config = new File("date.txt");
+        try {
+            config.createNewFile();
+        } catch (IOException e) {
+            System.out.println("Error creating date.txt");
+            System.exit(1);
+        }
+        try {
+            br = new BufferedReader(new FileReader(config));
+        } catch (FileNotFoundException e) {
+            System.out.println("Error in reading date.txt");
+            System.exit(1);
+        }
+        String line;
+        try {
+            while ((line = br.readLine()) != null) {
+                currentDate = Instant.parse(line);
+            }
+            if (currentDate == null) {
+                currentDate = Instant.now();
+                writer = new PrintWriter(config);
+                writer.println(currentDate);
+                writer.flush();
+                writer.close();
+            }
+        } catch (IOException e) {
+            System.out.println("Error in reading date.txt");
+            System.exit(1);
+        }
+
+        dateText.setText("Today is " + currentDate.atZone(ZoneOffset.UTC).toLocalDate());
+
+        dateText.setText("Today is " + currentDate.atZone(ZoneOffset.UTC).toLocalDate()
+                .format(DateTimeFormatter.ofPattern("dd MMMM yyyy", new Locale("en", "US"))));
 
         usersPage users = new usersPage(connection);
         tabbedPanel.addTab("users", users.getter());
@@ -29,16 +75,19 @@ public class homePage extends JFrame {
         borrowedPage borrowedPages = new borrowedPage(connection);
         tabbedPanel.addTab("borrowed book", borrowedPages.getter());
 
-        recordPage recordPages = new recordPage(connection);
-        tabbedPanel.addTab("record", recordPages.getter());
-
-        datePage datePages = new datePage();
+        datePage datePages = new datePage(this);
         tabbedPanel.addTab("date", datePages.getter());
 
         rankPage rankPages = new rankPage(connection);
         tabbedPanel.addTab("rank", rankPages.getter());
     }
 
+    public void setCurrentDate(Instant currentDate) {
+        this.currentDate = currentDate;
+        System.out.println(currentDate);
+        dateText.setText("Today is " + this.currentDate.atZone(ZoneOffset.UTC).toLocalDate()
+                .format(DateTimeFormatter.ofPattern("dd MMMM yyyy", new Locale("en", "US"))));
+    }
 
     public JPanel getter() {
         return this.homePanel;
