@@ -6,13 +6,15 @@ import com.intellij.uiDesigner.core.GridLayoutManager;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.sql.*;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
+import java.util.Objects;
 
 public class borrowedPage extends JFrame {
 
@@ -63,6 +65,7 @@ public class borrowedPage extends JFrame {
                 while ((line = bufferedReader.readLine()) != null) {
                     date = Instant.parse(line).atZone(ZoneOffset.UTC).toLocalDate();
                 }
+                if (date == null) return;
                 reader.close();
 
                 PreparedStatement ps = con.prepareStatement(
@@ -121,72 +124,66 @@ public class borrowedPage extends JFrame {
                 System.out.println("Error when reading file: " + ioEx.getMessage());
             } catch (NumberFormatException nfe) {
                 JOptionPane.showMessageDialog(null, "BookID is in number format!");
-                return;
             }
         });
         borrowButton.addActionListener(e -> {
-            String borrower_id = borrowerIDFIeld.getText();
-            int book_id = Integer.parseInt(bookIDField.getText());
-            borrowBook(borrower_id, book_id);
+            try {
+                String borrower_id = borrowerIDFIeld.getText();
+                int book_id = Integer.parseInt(bookIDField.getText());
+                borrowBook(borrower_id, book_id);
+            } catch (NumberFormatException nfe) {
+                JOptionPane.showMessageDialog(null, "BookID is in number format!");
+            }
         });
         returnButton.addActionListener(e -> {
-            String borrower_id = borrowerIDFIeld.getText();
-            int book_id = Integer.parseInt(bookIDField.getText());
-            returnBook(borrower_id, book_id);
+            try {
+                String borrower_id = borrowerIDFIeld.getText();
+                int book_id = Integer.parseInt(bookIDField.getText());
+                returnBook(borrower_id, book_id);
+            } catch (NumberFormatException nfe) {
+                JOptionPane.showMessageDialog(null, "BookID is in number format!");
+            }
         });
-        showIssueButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                try {
+        showIssueButton.addActionListener(e -> {
+            try {
+                reader.close();
 
-                    LocalDate date = null;
-                    FileReader reader = new FileReader("date.txt");
-                    BufferedReader bufferedReader = new BufferedReader(reader);
-
-                    String line;
-
-                    while ((line = bufferedReader.readLine()) != null) {
-                        date = Instant.parse(line).atZone(ZoneOffset.UTC).toLocalDate();
-                    }
-                    reader.close();
-
-                    PreparedStatement ps = con.prepareStatement(
-                            "SELECT u.user_name, b.title, b.borrow_date, b.due_date, b.return_date FROM borrowed_books b, borrow_period_fine bpf, users u\n" +
-                                    "WHERE \n" +
-                                    "b.borrower_id = bpf.user_id AND\n" +
-                                    "b.borrower_id = u.user_id \n" +
-                                    "ORDER BY b.borrow_date DESC;");
+                PreparedStatement ps = con.prepareStatement(
+                        "SELECT u.user_name, b.title, b.borrow_date, b.due_date, b.return_date FROM borrowed_books b, borrow_period_fine bpf, users u\n" +
+                                "WHERE \n" +
+                                "b.borrower_id = bpf.user_id AND\n" +
+                                "b.borrower_id = u.user_id \n" +
+                                "ORDER BY b.borrow_date DESC;");
 
 
-                    System.out.println(ps);
-                    ResultSet rs = ps.executeQuery();
-                    ResultSetMetaData rsmd = rs.getMetaData();
+                System.out.println(ps);
+                ResultSet rs = ps.executeQuery();
+                ResultSetMetaData rsmd = rs.getMetaData();
 
-                    tbl_book.setModel(new DefaultTableModel());
-                    DefaultTableModel model = (DefaultTableModel) tbl_book.getModel();
+                tbl_book.setModel(new DefaultTableModel());
+                DefaultTableModel model = (DefaultTableModel) tbl_book.getModel();
 
-                    int cols = rsmd.getColumnCount();
-                    String[] colName = new String[cols];
-                    for (int i = 0; i < cols; i++)
-                        colName[i] = rsmd.getColumnLabel(i + 1);
-                    model.setColumnIdentifiers(colName);
+                int cols = rsmd.getColumnCount();
+                String[] colName = new String[cols];
+                for (int i = 0; i < cols; i++)
+                    colName[i] = rsmd.getColumnLabel(i + 1);
+                model.setColumnIdentifiers(colName);
 
-                    while (rs.next()) {
-                        String user_name = rs.getString(1);
-                        String book_title = rs.getString(2);
-                        String borrow_date = String.valueOf(rs.getDate(3));
-                        String due_date = String.valueOf(rs.getDate(4));
-                        String return_date = String.valueOf(rs.getDate(5)) == "null" ? "not returned" : String.valueOf(rs.getDate(5));
-                        String[] row = {user_name, book_title, borrow_date, due_date, return_date};
-                        model.addRow(row);
-                    }
-
-
-                } catch (SQLException sqEx) {
-                    System.out.println("Error when querying database: " + sqEx.getMessage());
-                } catch (IOException ioEx) {
-                    System.out.println("Error when reading file: " + ioEx.getMessage());
+                while (rs.next()) {
+                    String user_name = rs.getString(1);
+                    String book_title = rs.getString(2);
+                    String borrow_date = String.valueOf(rs.getDate(3));
+                    String due_date = String.valueOf(rs.getDate(4));
+                    String return_date = Objects.equals(String.valueOf(rs.getDate(5)), "null") ? "not returned" : String.valueOf(rs.getDate(5));
+                    String[] row = {user_name, book_title, borrow_date, due_date, return_date};
+                    model.addRow(row);
                 }
+
+
+            } catch (SQLException sqEx) {
+                System.out.println("Error when querying database: " + sqEx.getMessage());
+            } catch (IOException ioEx) {
+                System.out.println("Error when reading file: " + ioEx.getMessage());
             }
         });
     }
@@ -198,8 +195,6 @@ public class borrowedPage extends JFrame {
         if (userID.length() == 6 && userID.charAt(0) == 'U') {
             return false;
         }
-
-
         JOptionPane.showMessageDialog(null, "Invalid user ID, Syntax: \"U000123\"");
         return true;
     }
