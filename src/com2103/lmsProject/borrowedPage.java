@@ -4,7 +4,9 @@ import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 
 import javax.swing.*;
+import javax.swing.plaf.FontUIResource;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.text.StyleContext;
 import java.awt.*;
 import java.io.BufferedReader;
 import java.io.File;
@@ -14,6 +16,7 @@ import java.sql.*;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
+import java.util.Locale;
 import java.util.Objects;
 
 public class borrowedPage extends JFrame {
@@ -286,32 +289,73 @@ public class borrowedPage extends JFrame {
         panel1 = new JPanel();
         panel1.setLayout(new GridLayoutManager(4, 5, new Insets(0, 0, 0, 0), -1, -1));
         final JLabel label1 = new JLabel();
+        Font label1Font = this.$$$getFont$$$(null, -1, 20, label1.getFont());
+        if (label1Font != null) label1.setFont(label1Font);
         label1.setText("Enter book ID");
         panel1.add(label1, new GridConstraints(0, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JScrollPane scrollPane1 = new JScrollPane();
         panel1.add(scrollPane1, new GridConstraints(3, 0, 1, 5, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
         tbl_book = new JTable();
+        tbl_book.setAutoCreateRowSorter(true);
+        Font tbl_bookFont = this.$$$getFont$$$(null, -1, 18, tbl_book.getFont());
+        if (tbl_bookFont != null) tbl_book.setFont(tbl_bookFont);
         scrollPane1.setViewportView(tbl_book);
         bookIDField = new JTextField();
+        Font bookIDFieldFont = this.$$$getFont$$$(null, -1, 20, bookIDField.getFont());
+        if (bookIDFieldFont != null) bookIDField.setFont(bookIDFieldFont);
         bookIDField.setText("");
         panel1.add(bookIDField, new GridConstraints(0, 2, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
         final JLabel label2 = new JLabel();
+        Font label2Font = this.$$$getFont$$$(null, -1, 20, label2.getFont());
+        if (label2Font != null) label2.setFont(label2Font);
         label2.setText("Enter borrower ID");
         panel1.add(label2, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         borrowerIDFIeld = new JTextField();
+        Font borrowerIDFIeldFont = this.$$$getFont$$$(null, -1, 20, borrowerIDFIeld.getFont());
+        if (borrowerIDFIeldFont != null) borrowerIDFIeld.setFont(borrowerIDFIeldFont);
         panel1.add(borrowerIDFIeld, new GridConstraints(1, 2, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
         borrowButton = new JButton();
+        Font borrowButtonFont = this.$$$getFont$$$(null, -1, 20, borrowButton.getFont());
+        if (borrowButtonFont != null) borrowButton.setFont(borrowButtonFont);
         borrowButton.setText("Borrow");
         panel1.add(borrowButton, new GridConstraints(2, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         returnButton = new JButton();
+        Font returnButtonFont = this.$$$getFont$$$(null, -1, 20, returnButton.getFont());
+        if (returnButtonFont != null) returnButton.setFont(returnButtonFont);
         returnButton.setText("Return");
         panel1.add(returnButton, new GridConstraints(2, 3, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         SearchShowAllButton = new JButton();
+        Font SearchShowAllButtonFont = this.$$$getFont$$$(null, -1, 20, SearchShowAllButton.getFont());
+        if (SearchShowAllButtonFont != null) SearchShowAllButton.setFont(SearchShowAllButtonFont);
         SearchShowAllButton.setText("Search-Show All");
         panel1.add(SearchShowAllButton, new GridConstraints(0, 4, 2, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         showIssueButton = new JButton();
+        Font showIssueButtonFont = this.$$$getFont$$$(null, -1, 20, showIssueButton.getFont());
+        if (showIssueButtonFont != null) showIssueButton.setFont(showIssueButtonFont);
         showIssueButton.setText("Show issue record");
         panel1.add(showIssueButton, new GridConstraints(2, 4, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    }
+
+    /**
+     * @noinspection ALL
+     */
+    private Font $$$getFont$$$(String fontName, int style, int size, Font currentFont) {
+        if (currentFont == null) return null;
+        String resultName;
+        if (fontName == null) {
+            resultName = currentFont.getName();
+        } else {
+            Font testFont = new Font(fontName, Font.PLAIN, 10);
+            if (testFont.canDisplay('a') && testFont.canDisplay('1')) {
+                resultName = fontName;
+            } else {
+                resultName = currentFont.getName();
+            }
+        }
+        Font font = new Font(resultName, style >= 0 ? style : currentFont.getStyle(), size >= 0 ? size : currentFont.getSize());
+        boolean isMac = System.getProperty("os.name", "").toLowerCase(Locale.ENGLISH).startsWith("mac");
+        Font fontWithFallback = isMac ? new Font(font.getFamily(), font.getStyle(), font.getSize()) : new StyleContext().getFont(font.getFamily(), font.getStyle(), font.getSize());
+        return fontWithFallback instanceof FontUIResource ? fontWithFallback : new FontUIResource(fontWithFallback);
     }
 
     /**
