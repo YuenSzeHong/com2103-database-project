@@ -6,6 +6,8 @@ import com.intellij.uiDesigner.core.GridLayoutManager;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.*;
 import java.sql.*;
 import java.time.Instant;
@@ -20,9 +22,10 @@ public class borrowedPage extends JFrame {
     private JTextField bookIDField;
     private JButton searchBorrIDButton;
     private JPanel panel1;
-    private JButton Showall;
+    private JButton SearchShowAllButton;
     private JButton borrowButton;
     private JButton returnButton;
+    private JButton showIssueButton;
     private FileReader reader;
     private final File file;
     private final Connection con;
@@ -39,137 +42,86 @@ public class borrowedPage extends JFrame {
         }
         this.con = con;
 
-        searchBkIDButton.addActionListener(e -> {
+
+        SearchShowAllButton.addActionListener(e -> {
+
 
             try {
-                String searchValue = bookIDField.getText();
-                bookIDField.setText(null);
-                borrowerIDFIeld.setText(null);
 
-                //use preparedStatement instead of createStatement
-                PreparedStatement ps = con.prepareStatement("SELECT * from borrow_records where book_id LIKE ? ORDER BY book_id;");
-                ps.setString(1, "%" + searchValue + "%");
+                String bookID = bookIDField.getText();
+                String borrowerID = borrowerIDFIeld.getText();
+                if (UserIDInvalid(borrowerID)) {
+                    return;
+                }
+
+                LocalDate date = null;
+                FileReader reader = new FileReader("date.txt");
+                BufferedReader bufferedReader = new BufferedReader(reader);
+
+                String line;
+
+                while ((line = bufferedReader.readLine()) != null) {
+                    date = Instant.parse(line).atZone(ZoneOffset.UTC).toLocalDate();
+                }
+                reader.close();
+
+                PreparedStatement ps = con.prepareStatement(
+                        "SELECT u.user_name, " +
+                                "b.borrower_id, " +
+                                "b.title, " +
+                                "bk.book_id, " +
+                                "b.borrow_date, " +
+                                "b.return_date, " +
+                                "(bpf.borrow_period - DATEDIFF(?, b.borrow_date)) AS `period remaining`, " +
+                                "b.due_date " +
+                                "FROM borrowed_books b, borrow_period_fine bpf, users u, books bk\n" +
+                                "WHERE \n" +
+                                "b.due_date < ? AND b.borrower_id = bpf.user_id AND\n" +
+                                "b.borrower_id = u.user_id AND b.title = bk.title AND\n" +
+                                "b.borrower_id LIKE ? " +
+                                (!bookID.isEmpty() ? "AND bk.book_id = ? " : "") +
+                                "ORDER BY b.borrow_date DESC;");
+                ps.setDate(1, Date.valueOf(date));
+                ps.setDate(2, Date.valueOf(date));
+                ps.setString(3, "%" + borrowerID + "%");
+                if (!bookID.isEmpty()) {
+                    ps.setInt(4, Integer.parseInt(bookID));
+                }
                 System.out.println(ps);
                 ResultSet rs = ps.executeQuery();
                 ResultSetMetaData rsmd = rs.getMetaData();
 
-                //Reset table when click searchBkIDButton((yourTableNameHere).setModel()), and build table (yourTableNameHere).getModel()
                 tbl_book.setModel(new DefaultTableModel());
                 DefaultTableModel model = (DefaultTableModel) tbl_book.getModel();
 
-                //get column name from lms database
                 int cols = rsmd.getColumnCount();
+                System.out.println(cols);
                 String[] colName = new String[cols];
-                for (int i = 0; i < cols; i++) {
+                for (int i = 0; i < cols; i++)
                     colName[i] = rsmd.getColumnLabel(i + 1);
-
-                }
                 model.setColumnIdentifiers(colName);
 
-                //adding each row's value from lms database to your table
                 while (rs.next()) {
-                    int id = rs.getInt(1);
-                    int book_id = rs.getInt(2);
-                    Date borrow_date = rs.getDate(3);
-                    Date return_date = rs.getDate(4);
-                    String borrower_id = rs.getString(5);
-
-                    String[] row = {String.valueOf(id), String.valueOf(book_id), String.valueOf(borrow_date), String.valueOf(return_date), borrower_id};
+                    String user_name = rs.getString(1);
+                    String borrow_id = rs.getString(2);
+                    String book_title = rs.getString(3);
+                    String book_id = String.valueOf(rs.getInt(4));
+                    String borrow_date = String.valueOf(rs.getDate(5));
+                    String return_date = String.valueOf(rs.getDate(6));
+                    String period_remaining = rs.getInt(7) == 0 ? "on Due" : (Math.abs(rs.getInt(7)) + (rs.getInt(7) > 0 ? " days remaining" : " days late"));
+                    String due_date = String.valueOf(rs.getDate(8));
+                    String[] row = {user_name, borrow_id, book_title, book_id, borrow_date, return_date, period_remaining, due_date};
                     model.addRow(row);
                 }
 
 
-            } catch (Exception exception) {
-                System.out.println("Error: " + exception.getMessage());
-            }
-        });
-
-        searchBorrIDButton.addActionListener(e -> {
-
-            try {
-                String searchValue = borrowerIDFIeld.getText();
-                bookIDField.setText(null);
-                borrowerIDFIeld.setText(null);
-
-                //use preparedStatement instead of createStatement
-                PreparedStatement ps = con.prepareStatement("SELECT * from borrow_records where borrower_id LIKE ? ORDER BY borrower_id;");
-                ps.setString(1, "%" + searchValue + "%");
-                System.out.println(ps);
-                ResultSet rs = ps.executeQuery();
-                ResultSetMetaData rsmd = rs.getMetaData();
-
-                //Reset table when click searchBkIDButton((yourTableNameHere).setModel()), and build table (yourTableNameHere).getModel()
-                tbl_book.setModel(new DefaultTableModel());
-                DefaultTableModel model = (DefaultTableModel) tbl_book.getModel();
-
-                //get column name from lms database
-                int cols = rsmd.getColumnCount();
-                String[] colName = new String[cols];
-                for (int i = 0; i < cols; i++) {
-                    colName[i] = rsmd.getColumnLabel(i + 1);
-
-                }
-                model.setColumnIdentifiers(colName);
-
-                //adding each row's value from lms database to your table
-                while (rs.next()) {
-                    String borrower_id = rs.getString(1);
-                    String title = rs.getString(2);
-                    String borrow_date = rs.getString(3);
-                    String return_date = rs.getString(4);
-                    String due_date = rs.getString(5);
-
-                    String[] row = {borrower_id, title, borrow_date, return_date, due_date};
-                    model.addRow(row);
-                }
-
-
-            } catch (Exception exception) {
-                System.out.println("Error: " + exception.getMessage());
-            }
-        });
-
-        Showall.addActionListener(e -> {
-            bookIDField.setText(null);
-            borrowerIDFIeld.setText(null);
-            try {
-                String searchValue = "0";
-
-                //use preparedStatement instead of createStatement
-                PreparedStatement ps = con.prepareStatement("SELECT * from borrow_records where borrower_id LIKE ? ORDER BY id;");
-                ps.setString(1, "%" + searchValue + "%");
-                System.out.println(ps);
-                ResultSet rs = ps.executeQuery();
-                ResultSetMetaData rsmd = rs.getMetaData();
-
-                //Reset table when click searchBkIDButton((yourTableNameHere).setModel()), and build table (yourTableNameHere).getModel()
-                tbl_book.setModel(new DefaultTableModel());
-                DefaultTableModel model = (DefaultTableModel) tbl_book.getModel();
-
-                //get column name from lms database
-                int cols = rsmd.getColumnCount();
-                String[] colName = new String[cols];
-                for (int i = 0; i < cols; i++) {
-                    colName[i] = rsmd.getColumnLabel(i + 1);
-
-                }
-                model.setColumnIdentifiers(colName);
-
-                //adding each row's value from lms database to your table
-                while (rs.next()) {
-                    String borrower_id = rs.getString(1);
-                    String title = rs.getString(2);
-                    String borrow_date = rs.getString(3);
-                    String return_date = rs.getString(4);
-                    String due_date = rs.getString(5);
-
-                    String[] row = {borrower_id, title, borrow_date, return_date, due_date};
-                    model.addRow(row);
-                }
-
-
-            } catch (Exception exception) {
-                System.out.println("Error: " + exception.getMessage());
+            } catch (SQLException sqEx) {
+                System.out.println("Error when querying database: " + sqEx.getMessage());
+            } catch (IOException ioEx) {
+                System.out.println("Error when reading file: " + ioEx.getMessage());
+            } catch (NumberFormatException nfe) {
+                JOptionPane.showMessageDialog(null, "BookID is in number format!");
+                return;
             }
         });
         borrowButton.addActionListener(e -> {
@@ -182,6 +134,74 @@ public class borrowedPage extends JFrame {
             int book_id = Integer.parseInt(bookIDField.getText());
             returnBook(borrower_id, book_id);
         });
+        showIssueButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+
+                    LocalDate date = null;
+                    FileReader reader = new FileReader("date.txt");
+                    BufferedReader bufferedReader = new BufferedReader(reader);
+
+                    String line;
+
+                    while ((line = bufferedReader.readLine()) != null) {
+                        date = Instant.parse(line).atZone(ZoneOffset.UTC).toLocalDate();
+                    }
+                    reader.close();
+
+                    PreparedStatement ps = con.prepareStatement(
+                            "SELECT u.user_name, b.title, b.borrow_date, b.due_date, b.return_date FROM borrowed_books b, borrow_period_fine bpf, users u\n" +
+                                    "WHERE \n" +
+                                    "b.borrower_id = bpf.user_id AND\n" +
+                                    "b.borrower_id = u.user_id \n" +
+                                    "ORDER BY b.borrow_date DESC;");
+
+
+                    System.out.println(ps);
+                    ResultSet rs = ps.executeQuery();
+                    ResultSetMetaData rsmd = rs.getMetaData();
+
+                    tbl_book.setModel(new DefaultTableModel());
+                    DefaultTableModel model = (DefaultTableModel) tbl_book.getModel();
+
+                    int cols = rsmd.getColumnCount();
+                    String[] colName = new String[cols];
+                    for (int i = 0; i < cols; i++)
+                        colName[i] = rsmd.getColumnLabel(i + 1);
+                    model.setColumnIdentifiers(colName);
+
+                    while (rs.next()) {
+                        String user_name = rs.getString(1);
+                        String book_title = rs.getString(2);
+                        String borrow_date = String.valueOf(rs.getDate(3));
+                        String due_date = String.valueOf(rs.getDate(4));
+                        String return_date = String.valueOf(rs.getDate(5)) == "null" ? "not returned" : String.valueOf(rs.getDate(5));
+                        String[] row = {user_name, book_title, borrow_date, due_date, return_date};
+                        model.addRow(row);
+                    }
+
+
+                } catch (SQLException sqEx) {
+                    System.out.println("Error when querying database: " + sqEx.getMessage());
+                } catch (IOException ioEx) {
+                    System.out.println("Error when reading file: " + ioEx.getMessage());
+                }
+            }
+        });
+    }
+
+    boolean UserIDInvalid(String userID) {
+        if (userID.isEmpty()) {
+            return false;
+        }
+        if (userID.length() == 6 && userID.charAt(0) == 'U') {
+            return false;
+        }
+
+
+        JOptionPane.showMessageDialog(null, "Invalid user ID, Syntax: \"U000123\"");
+        return true;
     }
 
     private void returnBook(String borrower_id, int book_id) {
@@ -273,9 +293,6 @@ public class borrowedPage extends JFrame {
         final JLabel label1 = new JLabel();
         label1.setText("Enter book ID");
         panel1.add(label1, new GridConstraints(0, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        searchBkIDButton = new JButton();
-        searchBkIDButton.setText("Search");
-        panel1.add(searchBkIDButton, new GridConstraints(0, 4, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JScrollPane scrollPane1 = new JScrollPane();
         panel1.add(scrollPane1, new GridConstraints(3, 0, 1, 5, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
         tbl_book = new JTable();
@@ -286,20 +303,20 @@ public class borrowedPage extends JFrame {
         final JLabel label2 = new JLabel();
         label2.setText("Enter borrower ID");
         panel1.add(label2, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        searchBorrIDButton = new JButton();
-        searchBorrIDButton.setText("Search");
-        panel1.add(searchBorrIDButton, new GridConstraints(1, 4, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         borrowerIDFIeld = new JTextField();
         panel1.add(borrowerIDFIeld, new GridConstraints(1, 2, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
-        Showall = new JButton();
-        Showall.setText("Show All");
-        panel1.add(Showall, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         borrowButton = new JButton();
         borrowButton.setText("Borrow");
         panel1.add(borrowButton, new GridConstraints(2, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         returnButton = new JButton();
         returnButton.setText("Return");
         panel1.add(returnButton, new GridConstraints(2, 3, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        SearchShowAllButton = new JButton();
+        SearchShowAllButton.setText("Search-Show All");
+        panel1.add(SearchShowAllButton, new GridConstraints(0, 4, 2, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        showIssueButton = new JButton();
+        showIssueButton.setText("Show issue record");
+        panel1.add(showIssueButton, new GridConstraints(2, 4, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     }
 
     /**

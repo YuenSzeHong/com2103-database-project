@@ -16,14 +16,6 @@
           <text value="Enter book ID"/>
         </properties>
       </component>
-      <component id="1a1a3" class="javax.swing.JButton" binding="searchBkIDButton">
-        <constraints>
-          <grid row="0" column="4" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties>
-          <text value="Search"/>
-        </properties>
-      </component>
       <scrollpane id="6e5ff">
         <constraints>
           <grid row="3" column="0" row-span="1" col-span="5" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
@@ -55,14 +47,6 @@
           <text value="Enter borrower ID"/>
         </properties>
       </component>
-      <component id="d9ace" class="javax.swing.JButton" binding="searchBorrIDButton">
-        <constraints>
-          <grid row="1" column="4" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties>
-          <text value="Search"/>
-        </properties>
-      </component>
       <component id="38a0d" class="javax.swing.JTextField" binding="borrowerIDFIeld">
         <constraints>
           <grid row="1" column="2" row-span="1" col-span="2" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
@@ -70,14 +54,6 @@
           </grid>
         </constraints>
         <properties/>
-      </component>
-      <component id="485cf" class="javax.swing.JButton" binding="Showall">
-        <constraints>
-          <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties>
-          <text value="Show All"/>
-        </properties>
       </component>
       <component id="57232" class="javax.swing.JButton" binding="borrowButton" default-binding="true">
         <constraints>
@@ -93,6 +69,22 @@
         </constraints>
         <properties>
           <text value="Return"/>
+        </properties>
+      </component>
+      <component id="485cf" class="javax.swing.JButton" binding="SearchShowAllButton">
+        <constraints>
+          <grid row="0" column="4" row-span="2" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text value="Search-Show All"/>
+        </properties>
+      </component>
+      <component id="1c375" class="javax.swing.JButton" binding="showIssueButton">
+        <constraints>
+          <grid row="2" column="4" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text value="Show issue record"/>
         </properties>
       </component>
     </children>

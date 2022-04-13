@@ -168,7 +168,7 @@ public class rankPage {
     }
 
     boolean UserIDInvalid(String userID) {
-        if (userID.equals("")) {
+        if (userID.isEmpty()) {
             JOptionPane.showMessageDialog(null, "Please enter a valid user ID");
             return true;
         }
