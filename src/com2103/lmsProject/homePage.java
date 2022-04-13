@@ -11,6 +11,7 @@ import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
+import java.util.Locale;
 
 
 public class homePage extends JFrame {
@@ -62,7 +63,8 @@ public class homePage extends JFrame {
             System.exit(1);
         }
 
-        dateText.setText("Today is " + currentDate.atZone(ZoneOffset.UTC).toLocalDate());
+        dateText.setText("Today is " + currentDate.atZone(ZoneOffset.UTC).toLocalDate()
+                .format(DateTimeFormatter.ofPattern("dd MMMM yyyy", new Locale("en", "US"))));
 
         usersPage users = new usersPage(connection);
         tabbedPanel.addTab("users", users.getter());
@@ -85,8 +87,8 @@ public class homePage extends JFrame {
 
     public void setCurrentDate(Instant currentDate) {
         this.currentDate = currentDate;
-        System.out.println(currentDate);
-        dateText.setText("Today is " + this.currentDate.atZone(ZoneOffset.UTC).toLocalDate());
+        dateText.setText("Today is " + this.currentDate.atZone(ZoneOffset.UTC).toLocalDate()
+                .format(DateTimeFormatter.ofPattern("dd MMMM yyyy", new Locale("en", "US"))));
     }
 
     public JPanel getter() {
