@@ -166,7 +166,7 @@ public class book {
         searchButton = new JButton();
         Font searchButtonFont = this.$$$getFont$$$(null, -1, 20, searchButton.getFont());
         if (searchButtonFont != null) searchButton.setFont(searchButtonFont);
-        searchButton.setText("Search");
+        searchButton.setText("Search / Show All");
         panel1.add(searchButton, new GridConstraints(0, 3, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JScrollPane scrollPane1 = new JScrollPane();
         panel1.add(scrollPane1, new GridConstraints(2, 0, 1, 4, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
@@ -188,7 +188,7 @@ public class book {
         searchButton2 = new JButton();
         Font searchButton2Font = this.$$$getFont$$$(null, -1, 20, searchButton2.getFont());
         if (searchButton2Font != null) searchButton2.setFont(searchButton2Font);
-        searchButton2.setText("Search");
+        searchButton2.setText("Search / Show All");
         panel1.add(searchButton2, new GridConstraints(1, 3, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     }
 

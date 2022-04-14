@@ -67,19 +67,19 @@ public class homePage extends JFrame {
                 .format(DateTimeFormatter.ofPattern("dd MMMM yyyy", new Locale("en", "US"))));
 
         usersPage users = new usersPage(connection);
-        tabbedPanel.addTab("users", users.getter());
+        tabbedPanel.addTab("User", users.getter());
 
         book books = new book(connection);
-        tabbedPanel.addTab("books", books.getter());
+        tabbedPanel.addTab("Book", books.getter());
 
         borrowedPage borrowedPages = new borrowedPage(connection);
-        tabbedPanel.addTab("borrowed book", borrowedPages.getter());
+        tabbedPanel.addTab("Book borrowing", borrowedPages.getter());
 
         datePage datePages = new datePage(this);
-        tabbedPanel.addTab("date", datePages.getter());
+        tabbedPanel.addTab("Date setting", datePages.getter());
 
         rankPage rankPages = new rankPage(connection);
-        tabbedPanel.addTab("rank", rankPages.getter());
+        tabbedPanel.addTab("Rank setting", rankPages.getter());
     }
 
     public void setCurrentDate(Instant currentDate) {
