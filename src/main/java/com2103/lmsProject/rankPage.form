@@ -88,7 +88,7 @@
         </constraints>
         <properties>
           <font size="18"/>
-          <text value="add user"/>
+          <text value="Add user"/>
         </properties>
       </component>
       <component id="3ccaf" class="javax.swing.JButton" binding="removeUserButton" default-binding="true">
@@ -97,7 +97,7 @@
         </constraints>
         <properties>
           <font size="18"/>
-          <text value="remove user"/>
+          <text value="Remove user"/>
         </properties>
       </component>
       <component id="f0383" class="javax.swing.JTextArea" binding="usersToBeAddedTextArea">
@@ -151,7 +151,7 @@
         </constraints>
         <properties>
           <font size="20"/>
-          <text value="Renewal Limit (0=no)"/>
+          <text value="Renewal Limit (0 = no limit)"/>
         </properties>
       </component>
       <component id="f72ad" class="javax.swing.JLabel">

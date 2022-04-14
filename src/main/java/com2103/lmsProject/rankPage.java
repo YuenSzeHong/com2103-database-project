@@ -273,12 +273,12 @@ public class rankPage {
         addUserButton = new JButton();
         Font addUserButtonFont = this.$$$getFont$$$(null, -1, 18, addUserButton.getFont());
         if (addUserButtonFont != null) addUserButton.setFont(addUserButtonFont);
-        addUserButton.setText("add user");
+        addUserButton.setText("Add user");
         mainPanel.add(addUserButton, new GridConstraints(6, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         removeUserButton = new JButton();
         Font removeUserButtonFont = this.$$$getFont$$$(null, -1, 18, removeUserButton.getFont());
         if (removeUserButtonFont != null) removeUserButton.setFont(removeUserButtonFont);
-        removeUserButton.setText("remove user");
+        removeUserButton.setText("Remove user");
         mainPanel.add(removeUserButton, new GridConstraints(6, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         usersToBeAddedTextArea = new JTextArea();
         Font usersToBeAddedTextAreaFont = this.$$$getFont$$$(null, -1, 18, usersToBeAddedTextArea.getFont());
@@ -306,7 +306,7 @@ public class rankPage {
         renewalLimitText = new JLabel();
         Font renewalLimitTextFont = this.$$$getFont$$$(null, -1, 20, renewalLimitText.getFont());
         if (renewalLimitTextFont != null) renewalLimitText.setFont(renewalLimitTextFont);
-        renewalLimitText.setText("Renewal Limit");
+        renewalLimitText.setText("Renewal Limit (0 = no limit)");
         mainPanel.add(renewalLimitText, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JLabel label5 = new JLabel();
         Font label5Font = this.$$$getFont$$$(null, -1, 20, label5.getFont());
