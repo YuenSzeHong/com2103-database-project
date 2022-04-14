@@ -5,12 +5,10 @@ import com.intellij.uiDesigner.core.GridLayoutManager;
 
 import javax.swing.*;
 import javax.swing.plaf.FontUIResource;
+import javax.swing.table.DefaultTableModel;
 import javax.swing.text.StyleContext;
 import java.awt.*;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.HashMap;
 import java.util.Locale;
 
@@ -28,6 +26,7 @@ public class rankPage {
     private JButton deleteRankButton;
     private JSpinner renewalSpinner;
     private JLabel renewalLimitText;
+    private JTable rankTable;
     private final HashMap<String, String> usersToBeAdded = new HashMap<>();
     private final Connection connection;
 
@@ -37,6 +36,48 @@ public class rankPage {
         periodSpinner.setModel(new SpinnerNumberModel(14, 1, 30, 1));
         renewalSpinner.setModel(new SpinnerNumberModel(2, 1, 10, 1));
         this.connection = connection;
+
+
+        try {
+
+            //use preparedStatement instead of createStatement
+            PreparedStatement ps = connection.prepareStatement("SELECT b.rank_name, b.daily_fine, b.borrow_period, b.renewal_limit, b.borrow_limit From borrow_rule b");
+
+            ResultSet rs = ps.executeQuery();
+            ResultSetMetaData rsmd = rs.getMetaData();
+
+            //Reset table when click searchButton((yourTableNameHere).setModel()), and build table (yourTableNameHere).getModel()
+            DefaultTableModel model = new DefaultTableModel();
+
+            //get column name from lms database
+            int cols = rsmd.getColumnCount();
+            String[] colName = new String[cols];
+            for (int i = 0; i < cols; i++) {
+                colName[i] = rsmd.getColumnLabel(i + 1);
+
+            }
+            model.setColumnIdentifiers(colName);
+
+
+            //adding each row's value from lms database to your table
+            while (rs.next()) {
+                String rank_name = rs.getString(1);
+                String daily_fine = rs.getString(2);
+                String borrow_period = rs.getString(3);
+                String renewal_limit = rs.getString(4);
+                String borrow_limit = rs.getString(5);
+
+
+                String[] row = {rank_name, daily_fine, borrow_period, renewal_limit, borrow_limit};
+                model.addRow(row);
+            }
+            rankTable.setModel(model);
+
+
+        } catch (Exception exception) {
+            System.out.println("Error: " + exception.getMessage());
+        }
+
 
         addUserButton.addActionListener(e -> {
             String UserID = UserIDText.getText();
@@ -231,7 +272,7 @@ public class rankPage {
      */
     private void $$$setupUI$$$() {
         mainPanel = new JPanel();
-        mainPanel.setLayout(new GridLayoutManager(9, 3, new Insets(0, 0, 0, 0), -1, -1));
+        mainPanel.setLayout(new GridLayoutManager(9, 4, new Insets(0, 0, 0, 0), -1, -1));
         Font mainPanelFont = this.$$$getFont$$$(null, -1, 20, mainPanel.getFont());
         if (mainPanelFont != null) mainPanel.setFont(mainPanelFont);
         final JLabel label1 = new JLabel();
@@ -313,6 +354,21 @@ public class rankPage {
         if (label5Font != null) label5.setFont(label5Font);
         label5.setText("Users to be added:");
         mainPanel.add(label5, new GridConstraints(4, 0, 1, 1, GridConstraints.ANCHOR_NORTHWEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final JLabel label6 = new JLabel();
+        Font label6Font = this.$$$getFont$$$(null, -1, 20, label6.getFont());
+        if (label6Font != null) label6.setFont(label6Font);
+        label6.setText("Existing rank(s)");
+        mainPanel.add(label6, new GridConstraints(0, 3, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final JScrollPane scrollPane1 = new JScrollPane();
+        Font scrollPane1Font = this.$$$getFont$$$(null, -1, 26, scrollPane1.getFont());
+        if (scrollPane1Font != null) scrollPane1.setFont(scrollPane1Font);
+        mainPanel.add(scrollPane1, new GridConstraints(1, 3, 5, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+        rankTable = new JTable();
+        rankTable.setAutoCreateRowSorter(true);
+        Font rankTableFont = this.$$$getFont$$$(null, -1, 20, rankTable.getFont());
+        if (rankTableFont != null) rankTable.setFont(rankTableFont);
+        rankTable.setRowHeight(30);
+        scrollPane1.setViewportView(rankTable);
     }
 
     /**

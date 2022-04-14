@@ -17,7 +17,7 @@ public class LMSMain {
             homePage gui = new homePage(conn);
             JFrame frame = new JFrame();
             frame.setTitle("COM2103 Library Management System");
-            frame.setPreferredSize(new Dimension(1138,640));
+            frame.setPreferredSize(new Dimension(1300,720));
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             frame.getContentPane().add(gui.getter());
             frame.pack();
