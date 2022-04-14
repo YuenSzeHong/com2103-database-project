@@ -1,18 +1,18 @@
 # com2103-database-project
 database project for com2103 in Hang Seng University Of Hong Kong
 
-## set up
-create a database named `lms` in your selected DBMS
+## database set up
+create a database named `lms` in your selected DBMS (MySQL or MariaDB)
 ```mysql
 CREATE DATABASE lms;
 ```
 
 then import the data dump included \
 file name should like this
-`lms.datadump.15.03.2022.sql`\
-to be changed
+`lms.datadump.dd.mm.yyyy.sql`\
+latest `lms.datadump.10.04.2022.sql`
 ```bash
-mysql -u lms -p lms < lms.datadump.<date in dd.mm.yyyy>.sql
+mysql -u lms -p lms < lms.datadump.10.04.2022.sql
 ```
 create a user named `lms` with password `lmsroot` \
 then grant that account with permissions. 

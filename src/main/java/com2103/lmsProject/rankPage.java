@@ -26,15 +26,16 @@ public class rankPage {
     private JTextArea usersToBeAddedTextArea;
     private JButton assignButton;
     private JButton deleteRankButton;
+    private JSpinner renewalSpinner;
+    private JLabel renewalLimitText;
     private final HashMap<String, String> usersToBeAdded = new HashMap<>();
     private final Connection connection;
 
     public rankPage(Connection connection) {
         usersToBeAddedTextArea.setEditable(false);
-        feeSpinner.setValue(1.5f);
         feeSpinner.setModel(new SpinnerNumberModel(1.5f, 0, 10.0f, 0.01f));
-        periodSpinner.setValue(14);
         periodSpinner.setModel(new SpinnerNumberModel(14, 1, 30, 1));
+        renewalSpinner.setModel(new SpinnerNumberModel(2, 1, 10, 1));
         this.connection = connection;
 
         addUserButton.addActionListener(e -> {
@@ -230,7 +231,7 @@ public class rankPage {
      */
     private void $$$setupUI$$$() {
         mainPanel = new JPanel();
-        mainPanel.setLayout(new GridLayoutManager(8, 3, new Insets(0, 0, 0, 0), -1, -1));
+        mainPanel.setLayout(new GridLayoutManager(9, 3, new Insets(0, 0, 0, 0), -1, -1));
         Font mainPanelFont = this.$$$getFont$$$(null, -1, 20, mainPanel.getFont());
         if (mainPanelFont != null) mainPanel.setFont(mainPanelFont);
         final JLabel label1 = new JLabel();
@@ -264,45 +265,54 @@ public class rankPage {
         Font label4Font = this.$$$getFont$$$(null, -1, 20, label4.getFont());
         if (label4Font != null) label4.setFont(label4Font);
         label4.setText("Search User");
-        mainPanel.add(label4, new GridConstraints(4, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        mainPanel.add(label4, new GridConstraints(5, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         UserIDText = new JTextField();
         Font UserIDTextFont = this.$$$getFont$$$(null, -1, 20, UserIDText.getFont());
         if (UserIDTextFont != null) UserIDText.setFont(UserIDTextFont);
-        mainPanel.add(UserIDText, new GridConstraints(4, 1, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
+        mainPanel.add(UserIDText, new GridConstraints(5, 1, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
         addUserButton = new JButton();
         Font addUserButtonFont = this.$$$getFont$$$(null, -1, 18, addUserButton.getFont());
         if (addUserButtonFont != null) addUserButton.setFont(addUserButtonFont);
         addUserButton.setText("add user");
-        mainPanel.add(addUserButton, new GridConstraints(5, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        final JLabel label5 = new JLabel();
-        Font label5Font = this.$$$getFont$$$(null, -1, 20, label5.getFont());
-        if (label5Font != null) label5.setFont(label5Font);
-        label5.setText("Users to be added:");
-        mainPanel.add(label5, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_NORTHWEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        mainPanel.add(addUserButton, new GridConstraints(6, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         removeUserButton = new JButton();
         Font removeUserButtonFont = this.$$$getFont$$$(null, -1, 18, removeUserButton.getFont());
         if (removeUserButtonFont != null) removeUserButton.setFont(removeUserButtonFont);
         removeUserButton.setText("remove user");
-        mainPanel.add(removeUserButton, new GridConstraints(5, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        mainPanel.add(removeUserButton, new GridConstraints(6, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         usersToBeAddedTextArea = new JTextArea();
         Font usersToBeAddedTextAreaFont = this.$$$getFont$$$(null, -1, 18, usersToBeAddedTextArea.getFont());
         if (usersToBeAddedTextAreaFont != null) usersToBeAddedTextArea.setFont(usersToBeAddedTextAreaFont);
-        mainPanel.add(usersToBeAddedTextArea, new GridConstraints(3, 1, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_WANT_GROW, null, new Dimension(150, 50), null, 0, false));
+        mainPanel.add(usersToBeAddedTextArea, new GridConstraints(4, 1, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_WANT_GROW, null, new Dimension(150, 50), null, 0, false));
         addRankButton = new JButton();
         Font addRankButtonFont = this.$$$getFont$$$(null, -1, 18, addRankButton.getFont());
         if (addRankButtonFont != null) addRankButton.setFont(addRankButtonFont);
         addRankButton.setText("Add/Update rank and Assign users");
-        mainPanel.add(addRankButton, new GridConstraints(6, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        mainPanel.add(addRankButton, new GridConstraints(7, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         assignButton = new JButton();
         Font assignButtonFont = this.$$$getFont$$$(null, -1, 18, assignButton.getFont());
         if (assignButtonFont != null) assignButton.setFont(assignButtonFont);
         assignButton.setText("Assign Users to Rank");
-        mainPanel.add(assignButton, new GridConstraints(7, 1, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        mainPanel.add(assignButton, new GridConstraints(8, 1, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         deleteRankButton = new JButton();
         Font deleteRankButtonFont = this.$$$getFont$$$(null, -1, 18, deleteRankButton.getFont());
         if (deleteRankButtonFont != null) deleteRankButton.setFont(deleteRankButtonFont);
         deleteRankButton.setText("Delete Rank");
-        mainPanel.add(deleteRankButton, new GridConstraints(6, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        mainPanel.add(deleteRankButton, new GridConstraints(7, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        renewalSpinner = new JSpinner();
+        Font renewalSpinnerFont = this.$$$getFont$$$(null, -1, 20, renewalSpinner.getFont());
+        if (renewalSpinnerFont != null) renewalSpinner.setFont(renewalSpinnerFont);
+        mainPanel.add(renewalSpinner, new GridConstraints(3, 1, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        renewalLimitText = new JLabel();
+        Font renewalLimitTextFont = this.$$$getFont$$$(null, -1, 20, renewalLimitText.getFont());
+        if (renewalLimitTextFont != null) renewalLimitText.setFont(renewalLimitTextFont);
+        renewalLimitText.setText("Renewal Limit");
+        mainPanel.add(renewalLimitText, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final JLabel label5 = new JLabel();
+        Font label5Font = this.$$$getFont$$$(null, -1, 20, label5.getFont());
+        if (label5Font != null) label5.setFont(label5Font);
+        label5.setText("Users to be added:");
+        mainPanel.add(label5, new GridConstraints(4, 0, 1, 1, GridConstraints.ANCHOR_NORTHWEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     }
 
     /**
