@@ -10,9 +10,9 @@ CREATE DATABASE lms;
 then import the data dump included \
 file name should like this
 `lms.datadump.dd.mm.yyyy.sql`\
-latest `lms.datadump.10.04.2022.sql`
+latest `lms.datadump.14.04.2022.sql`
 ```bash
-mysql -u lms -p lms < lms.datadump.10.04.2022.sql
+mysql -u lms -p lms < lms.datadump.14.04.2022.sql
 ```
 create a user named `lms` with password `lmsroot` \
 then grant that account with permissions. 
