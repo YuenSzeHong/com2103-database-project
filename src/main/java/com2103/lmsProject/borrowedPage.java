@@ -72,31 +72,31 @@ public class borrowedPage extends JFrame {
                 reader.close();
 
                 PreparedStatement ps = con.prepareStatement(
-                        "SELECT u.user_name, " +
+                        "SELECT " +
                                 "b.borrower_id, " +
-                                "b.title, " +
+                                "u.user_name, " +
                                 "bk.book_id, " +
+                                "b.title, " +
                                 "b.borrow_date, " +
                                 "b.return_date, " +
                                 "(bpf.borrow_period - DATEDIFF(IF(b.return_date,b.return_date,?), b.borrow_date)) AS `period remaining`, " +
                                 "b.due_date " +
                                 "FROM borrowed_books b, borrow_period_fine bpf, users u, books bk\n" +
                                 "WHERE \n" +
-                                "b.due_date < ? AND b.borrower_id = bpf.user_id AND\n" +
+                                "b.borrower_id = bpf.user_id AND\n" +
                                 "b.borrower_id = u.user_id AND b.title = bk.title AND\n" +
                                 "b.borrower_id LIKE ? " +
                                 (!bookID.isEmpty() ? "AND bk.book_id = ? " : "") +
                                 "ORDER BY b.borrow_date DESC;");
                 ps.setDate(1, Date.valueOf(date));
-                ps.setDate(2, Date.valueOf(date));
-                ps.setString(3, "%" + borrowerID + "%");
+
+                ps.setString(2, "%" + borrowerID + "%");
                 if (!bookID.isEmpty()) {
-                    ps.setInt(4, Integer.parseInt(bookID));
+                    ps.setInt(3, Integer.parseInt(bookID));
                 }
                 System.out.println(ps);
                 ResultSet rs = ps.executeQuery();
                 ResultSetMetaData rsmd = rs.getMetaData();
-
                 tbl_book.setModel(new DefaultTableModel());
                 DefaultTableModel model = (DefaultTableModel) tbl_book.getModel();
 
@@ -108,15 +108,15 @@ public class borrowedPage extends JFrame {
                 model.setColumnIdentifiers(colName);
 
                 while (rs.next()) {
-                    String user_name = rs.getString(1);
-                    String borrow_id = rs.getString(2);
-                    String book_title = rs.getString(3);
-                    String book_id = String.valueOf(rs.getInt(4));
+                    String borrow_id = rs.getString(1);
+                    String user_name = rs.getString(2);
+                    String book_id = String.valueOf(rs.getInt(3));
+                    String book_title = rs.getString(4);
                     String borrow_date = String.valueOf(rs.getDate(5));
                     String return_date = String.valueOf(rs.getDate(6));
                     String period_remaining = rs.getInt(7) == 0 ? "on Due" : (Math.abs(rs.getInt(7)) + (rs.getInt(7) > 0 ? " days remaining" : " days late"));
                     String due_date = String.valueOf(rs.getDate(8));
-                    String[] row = {user_name, borrow_id, book_title, book_id, borrow_date, return_date, period_remaining, due_date};
+                    String[] row = {borrow_id, user_name, book_id, book_title, borrow_date, return_date, period_remaining, due_date};
                     model.addRow(row);
                 }
 
@@ -151,13 +151,33 @@ public class borrowedPage extends JFrame {
             try {
                 reader.close();
 
+                LocalDate date = null;
+                FileReader reader = new FileReader("date.txt");
+                BufferedReader bufferedReader = new BufferedReader(reader);
+
+                String line;
+
+                while ((line = bufferedReader.readLine()) != null) {
+                    date = Instant.parse(line).atZone(ZoneOffset.UTC).toLocalDate();
+                }
+                if (date == null) return;
+                reader.close();
+
                 PreparedStatement ps = con.prepareStatement(
-                        "SELECT u.user_name, b.title, b.borrow_date, b.due_date, b.return_date FROM borrowed_books b, borrow_period_fine bpf, users u\n" +
+                        "SELECT " +
+                                "b.borrower_id, u.user_name," +
+                                "bk.book_id, b.title, " +
+                                "b.borrow_date, b.return_date, " +
+                                "(bpf.borrow_period - DATEDIFF(IF(b.return_date,b.return_date,?), b.borrow_date)) AS `period remaining`, " +
+                                "b.due_date " +
+                                "FROM borrowed_books b, borrow_period_fine bpf, users u, books bk\n" +
                                 "WHERE \n" +
+                                "b.due_date < ? AND\n" +
                                 "b.borrower_id = bpf.user_id AND\n" +
                                 "b.borrower_id = u.user_id \n" +
                                 "ORDER BY b.borrow_date DESC;");
-
+                ps.setDate(1, Date.valueOf(date));
+                ps.setDate(2, Date.valueOf(date));
 
                 System.out.println(ps);
                 ResultSet rs = ps.executeQuery();
@@ -173,12 +193,15 @@ public class borrowedPage extends JFrame {
                 model.setColumnIdentifiers(colName);
 
                 while (rs.next()) {
-                    String user_name = rs.getString(1);
-                    String book_title = rs.getString(2);
-                    String borrow_date = String.valueOf(rs.getDate(3));
-                    String due_date = String.valueOf(rs.getDate(4));
-                    String return_date = Objects.equals(String.valueOf(rs.getDate(5)), "null") ? "not returned" : String.valueOf(rs.getDate(5));
-                    String[] row = {user_name, book_title, borrow_date, due_date, return_date};
+                    String borrower_id = rs.getString(1);
+                    String user_name = rs.getString(2);
+                    String book_id = rs.getString(3);
+                    String book_title = rs.getString(4);
+                    String borrow_date = String.valueOf(rs.getDate(5));
+                    String return_date = Objects.equals(String.valueOf(rs.getDate(6)), "null") ? "not returned" : String.valueOf(rs.getDate(6));
+                    String period_remaining = rs.getInt(7) == 0 ? "on Due" : (Math.abs(rs.getInt(7)) + (rs.getInt(7) > 0 ? " days remaining" : " days late"));
+                    String due_date = String.valueOf(rs.getDate(8));
+                    String[] row = {borrower_id, user_name, book_id, book_title, borrow_date, return_date, period_remaining, due_date};
                     model.addRow(row);
                 }
 
@@ -223,13 +246,59 @@ public class borrowedPage extends JFrame {
         }
     }
 
+    private boolean isBookBorrowed(int book_id) {
+        try {
+            PreparedStatement ps = con.prepareStatement(
+                    "SELECT * FROM borrow_records WHERE book_id = ? AND return_date IS NULL;");
+            ps.setInt(1, book_id);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return true;
+            }
+        } catch (SQLException sqEx) {
+            System.out.println("Error when querying database: " + sqEx.getMessage());
+        }
+        return false;
+    }
+
+    private boolean exceedBorrowLimit(String borrower_id) {
+        try {
+            PreparedStatement ps = con.prepareStatement("select count(*) from borrow_records where return_date is null and borrower_id = ?;");
+            ps.setString(1, borrower_id);
+            PreparedStatement ps2 = con.prepareStatement("select borrow_limit from borrow_period_fine where user_id = ?;");
+            ps2.setString(1, borrower_id);
+            ResultSet rs = ps.executeQuery();
+            rs.next();
+            int noBookBorrow = rs.getInt(1);
+            ResultSet rs2 = ps2.executeQuery();
+            rs2.next();
+            int bookBorrowLimit = rs2.getInt(1);
+            System.out.println(noBookBorrow);
+            System.out.println(bookBorrowLimit);
+            return noBookBorrow >= bookBorrowLimit;
+
+        } catch (SQLException e) {
+            System.out.println("Exception caught: " + e.getMessage());
+        }
+        return true;
+    }
+
     private void borrowBook(String borrower_id, int book_id) {
         try {
             LocalDate date = getLocalDate();
+            if (exceedBorrowLimit(borrower_id)) {
+                JOptionPane.showMessageDialog(null, "You have exceeded your borrow limit");
+                return;
+            }
+            if (isBookBorrowed(book_id)) {
+                JOptionPane.showMessageDialog(null, "This book is borrowed");
+                return;
+            }
             PreparedStatement ps = con.prepareStatement("INSERT INTO borrow_records(borrower_id, book_id, borrow_date) VALUES (?, ?, ?);");
             ps.setString(1, borrower_id);
             ps.setInt(2, book_id);
             ps.setDate(3, Date.valueOf(date));
+            System.out.println(ps);
             ps.executeUpdate();
             JOptionPane.showMessageDialog(null, "Book Borrowed, return date is " + getReturnDate(borrower_id, book_id));
         } catch (Exception exception) {

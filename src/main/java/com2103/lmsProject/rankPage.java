@@ -132,6 +132,12 @@ public class rankPage {
                     return;
                 }
             }
+            if ((int) renewalSpinner.getValue() > 10 || (int) renewalSpinner.getValue() < 0) {
+                JOptionPane.showMessageDialog(null, "Please enter a valid renewal limit, valid range is 0-10");
+            }
+            if ((int) renewalSpinner.getValue() == 0) {
+                JOptionPane.showConfirmDialog(null, "Are you sure to set unlimited renewal?");
+            }
             int rule_id = 0;
             try {
                 PreparedStatement psmt = connection.prepareStatement("SELECT rule_id FROM borrow_rule WHERE rank_name = ?;");
@@ -146,18 +152,20 @@ public class rankPage {
             }
             try {
                 PreparedStatement psmt = connection.prepareStatement(
-                        "REPLACE INTO borrow_rule (rank_name, daily_fine, borrow_period) VALUES (?, ?, ?);");
+                        "REPLACE INTO borrow_rule (rank_name, daily_fine, borrow_period, renewal_limit) VALUES (?, ?, ?, ?);");
                 if (rule_id != 0) {
-                    psmt = connection.prepareStatement("UPDATE borrow_rule SET rank_name = ?, daily_fine = ?, borrow_period = ? WHERE rule_id = ?;");
+                    psmt = connection.prepareStatement("UPDATE borrow_rule SET rank_name = ?, daily_fine = ?, borrow_period = ?, renewal_limit = ? WHERE rule_id = ?;");
                     psmt.setString(1, nameText.getText());
                     psmt.setDouble(2, (double) feeSpinner.getValue());
                     psmt.setInt(3, (int) periodSpinner.getValue());
-                    psmt.setInt(4, rule_id);
+                    psmt.setInt(4, (int) renewalSpinner.getValue());
+                    psmt.setInt(5, rule_id);
                     System.out.println(psmt);
                 } else {
                     psmt.setString(1, nameText.getText());
                     psmt.setDouble(2, (double) feeSpinner.getValue());
                     psmt.setInt(3, (int) periodSpinner.getValue());
+                    psmt.setInt(4, (int) renewalSpinner.getValue());
                 }
                 psmt.executeUpdate();
                 if (usersToBeAdded.size() == 0) {
