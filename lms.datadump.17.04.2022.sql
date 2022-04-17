@@ -26,7 +26,7 @@ CREATE TABLE `authors` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=130 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=130 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -53,7 +53,7 @@ CREATE TABLE `book_author` (
   KEY `author_id` (`author_id`),
   CONSTRAINT `book_author_ibfk_1` FOREIGN KEY (`book_id`) REFERENCES `books` (`book_id`),
   CONSTRAINT `book_author_ibfk_2` FOREIGN KEY (`author_id`) REFERENCES `authors` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -80,7 +80,7 @@ CREATE TABLE `book_genres` (
   KEY `genre_id` (`genre_id`),
   CONSTRAINT `book_genres_ibfk_1` FOREIGN KEY (`book_id`) REFERENCES `books` (`book_id`),
   CONSTRAINT `book_genres_ibfk_2` FOREIGN KEY (`genre_id`) REFERENCES `genres` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -110,7 +110,7 @@ CREATE TABLE `books` (
   PRIMARY KEY (`book_id`),
   KEY `publisher_ibfk_1_idx` (`publisher_id`),
   CONSTRAINT `publisher_ibfk_1` FOREIGN KEY (`publisher_id`) REFERENCES `publisher` (`publisher_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=211 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=211 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -135,7 +135,8 @@ SET @saved_cs_client     = @@character_set_client;
  1 AS `user_id`,
  1 AS `borrow_period`,
  1 AS `daily_fine`,
- 1 AS `renewal_limit`*/;
+ 1 AS `renewal_limit`,
+ 1 AS `borrow_limit`*/;
 SET character_set_client = @saved_cs_client;
 
 --
@@ -157,7 +158,7 @@ CREATE TABLE `borrow_records` (
   KEY `borrower_id` (`borrower_id`),
   CONSTRAINT `borrow_records_ibfk_1` FOREIGN KEY (`book_id`) REFERENCES `books` (`book_id`),
   CONSTRAINT `borrow_records_ibfk_2` FOREIGN KEY (`borrower_id`) REFERENCES `users` (`user_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=635 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=635 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -183,9 +184,10 @@ CREATE TABLE `borrow_rule` (
   `daily_fine` double(8,2) NOT NULL,
   `borrow_period` int NOT NULL,
   `renewal_limit` int unsigned NOT NULL DEFAULT '2',
+  `borrow_limit` int unsigned NOT NULL DEFAULT '8',
   PRIMARY KEY (`rule_id`),
   UNIQUE KEY `rank_name_UNIQUE` (`rank_name`)
-) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -194,7 +196,7 @@ CREATE TABLE `borrow_rule` (
 
 LOCK TABLES `borrow_rule` WRITE;
 /*!40000 ALTER TABLE `borrow_rule` DISABLE KEYS */;
-INSERT INTO `borrow_rule` VALUES (1,'default',1.50,14,2),(2,'punishment',3.00,7,2),(3,'VIP',1.50,30,2);
+INSERT INTO `borrow_rule` VALUES (1,'default',1.50,14,2,8),(2,'punishment',3.00,7,2,8),(3,'VIP',1.50,30,2,8);
 /*!40000 ALTER TABLE `borrow_rule` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -226,7 +228,7 @@ CREATE TABLE `genres` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -250,7 +252,7 @@ CREATE TABLE `publisher` (
   `publisher_id` int unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL,
   PRIMARY KEY (`publisher_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=35 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=35 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -277,7 +279,7 @@ CREATE TABLE `users` (
   PRIMARY KEY (`user_id`),
   KEY `users_ibfk_1_idx` (`rule_id`),
   CONSTRAINT `users_ibfk_1` FOREIGN KEY (`rule_id`) REFERENCES `borrow_rule` (`rule_id`) ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -300,10 +302,10 @@ UNLOCK TABLES;
 /*!50001 SET @saved_col_connection     = @@collation_connection */;
 /*!50001 SET character_set_client      = utf8mb4 */;
 /*!50001 SET character_set_results     = utf8mb4 */;
-/*!50001 SET collation_connection      = utf8mb4_0900_ai_ci */;
+/*!50001 SET collation_connection      = utf8_general_ci */;
 /*!50001 CREATE ALGORITHM=UNDEFINED */
 /*!50013 DEFINER=`root`@`localhost` SQL SECURITY DEFINER */
-/*!50001 VIEW `borrow_period_fine` AS select `u`.`user_id` AS `user_id`,`r`.`borrow_period` AS `borrow_period`,`r`.`daily_fine` AS `daily_fine`,`r`.`renewal_limit` AS `renewal_limit` from (`users` `u` join `borrow_rule` `r`) where (`u`.`rule_id` = `r`.`rule_id`) */;
+/*!50001 VIEW `borrow_period_fine` AS select `u`.`user_id` AS `user_id`,`r`.`borrow_period` AS `borrow_period`,`r`.`daily_fine` AS `daily_fine`,`r`.`renewal_limit` AS `renewal_limit`,`r`.`borrow_limit` AS `borrow_limit` from (`users` `u` join `borrow_rule` `r`) where (`u`.`rule_id` = `r`.`rule_id`) */;
 /*!50001 SET character_set_client      = @saved_cs_client */;
 /*!50001 SET character_set_results     = @saved_cs_results */;
 /*!50001 SET collation_connection      = @saved_col_connection */;
@@ -316,9 +318,9 @@ UNLOCK TABLES;
 /*!50001 SET @saved_cs_client          = @@character_set_client */;
 /*!50001 SET @saved_cs_results         = @@character_set_results */;
 /*!50001 SET @saved_col_connection     = @@collation_connection */;
-/*!50001 SET character_set_client      = utf8mb4 */;
-/*!50001 SET character_set_results     = utf8mb4 */;
-/*!50001 SET collation_connection      = utf8mb4_0900_ai_ci */;
+/*!50001 SET character_set_client      = utf8 */;
+/*!50001 SET character_set_results     = utf8 */;
+/*!50001 SET collation_connection      = utf8_general_ci */;
 /*!50001 CREATE ALGORITHM=UNDEFINED */
 /*!50013 DEFINER=`root`@`localhost` SQL SECURITY DEFINER */
 /*!50001 VIEW `borrowed_books` AS select `br`.`borrower_id` AS `borrower_id`,`b`.`title` AS `title`,`br`.`borrow_date` AS `borrow_date`,`br`.`return_date` AS `return_date`,`br`.`no_of_renewals` AS `no_of_renewals`,(`br`.`borrow_date` + interval ((1 + `br`.`no_of_renewals`) * `bpf`.`borrow_period`) day) AS `due_date` from ((`borrow_records` `br` join `books` `b`) join `borrow_period_fine` `bpf`) where ((`br`.`book_id` = `b`.`book_id`) and (`br`.`borrower_id` = `bpf`.`user_id`)) */;
@@ -335,4 +337,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-04-14 18:56:54
+-- Dump completed on 2022-04-17 10:45:13
