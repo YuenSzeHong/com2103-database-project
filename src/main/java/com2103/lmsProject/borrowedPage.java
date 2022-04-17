@@ -475,13 +475,13 @@ public class borrowedPage extends JFrame {
         SearchShowAllButton = new JButton();
         Font SearchShowAllButtonFont = this.$$$getFont$$$(null, -1, 20, SearchShowAllButton.getFont());
         if (SearchShowAllButtonFont != null) SearchShowAllButton.setFont(SearchShowAllButtonFont);
-        SearchShowAllButton.setText("Search-Show All");
+        SearchShowAllButton.setText("Search / Show All");
         panel1.add(SearchShowAllButton, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, 1, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         showIssueButton = new JButton();
         Font showIssueButtonFont = this.$$$getFont$$$(null, -1, 20, showIssueButton.getFont());
         if (showIssueButtonFont != null) showIssueButton.setFont(showIssueButtonFont);
         showIssueButton.setHorizontalAlignment(0);
-        showIssueButton.setText("Show issue record");
+        showIssueButton.setText("Show Late Return");
         panel1.add(showIssueButton, new GridConstraints(1, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, 1, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         borrowButton = new JButton();
         Font borrowButtonFont = this.$$$getFont$$$(null, -1, 20, borrowButton.getFont());
