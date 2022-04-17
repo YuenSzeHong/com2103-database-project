@@ -37,46 +37,7 @@ public class rankPage {
         renewalSpinner.setModel(new SpinnerNumberModel(2, 1, 10, 1));
         this.connection = connection;
 
-
-        try {
-
-            //use preparedStatement instead of createStatement
-            PreparedStatement ps = connection.prepareStatement("SELECT b.rank_name, b.daily_fine, b.borrow_period, b.renewal_limit, b.borrow_limit From borrow_rule b");
-
-            ResultSet rs = ps.executeQuery();
-            ResultSetMetaData rsmd = rs.getMetaData();
-
-            //Reset table when click searchButton((yourTableNameHere).setModel()), and build table (yourTableNameHere).getModel()
-            DefaultTableModel model = new DefaultTableModel();
-
-            //get column name from lms database
-            int cols = rsmd.getColumnCount();
-            String[] colName = new String[cols];
-            for (int i = 0; i < cols; i++) {
-                colName[i] = rsmd.getColumnLabel(i + 1);
-
-            }
-            model.setColumnIdentifiers(colName);
-
-
-            //adding each row's value from lms database to your table
-            while (rs.next()) {
-                String rank_name = rs.getString(1);
-                String daily_fine = rs.getString(2);
-                String borrow_period = rs.getString(3);
-                String renewal_limit = rs.getString(4);
-                String borrow_limit = rs.getString(5);
-
-
-                String[] row = {rank_name, daily_fine, borrow_period, renewal_limit, borrow_limit};
-                model.addRow(row);
-            }
-            rankTable.setModel(model);
-
-
-        } catch (Exception exception) {
-            System.out.println("Error: " + exception.getMessage());
-        }
+        updateRankTable();
 
 
         addUserButton.addActionListener(e -> {
@@ -170,6 +131,7 @@ public class rankPage {
                 psmt.executeUpdate();
                 if (usersToBeAdded.size() == 0) {
                     JOptionPane.showMessageDialog(null, "Rank added/updated successfully");
+                    updateRankTable();
                     return;
                 }
             } catch (SQLException ex) {
@@ -178,6 +140,8 @@ public class rankPage {
             }
 
             addUserToRank(usersToBeAdded, rule_id);
+
+
 
             JOptionPane.showMessageDialog(null, "user rank batch updated successfully");
 
@@ -208,6 +172,7 @@ public class rankPage {
                 psmt.setString(1, nameText.getText());
                 psmt.executeUpdate();
                 JOptionPane.showMessageDialog(null, "Rank deleted successfully");
+                updateRankTable();
                 clearTexts();
             } catch (SQLException ex) {
                 if (ex.getMessage().contains("FOREIGN KEY")) {
@@ -218,6 +183,49 @@ public class rankPage {
                 }
             }
         });
+    }
+
+    void updateRankTable() {
+        try {
+
+            //use preparedStatement instead of createStatement
+            PreparedStatement ps = connection.prepareStatement("SELECT b.rank_name, b.daily_fine, b.borrow_period, b.renewal_limit, b.borrow_limit From borrow_rule b");
+
+            ResultSet rs = ps.executeQuery();
+            ResultSetMetaData rsmd = rs.getMetaData();
+
+            //Reset table when click searchButton((yourTableNameHere).setModel()), and build table (yourTableNameHere).getModel()
+            DefaultTableModel model = new DefaultTableModel();
+
+            //get column name from lms database
+            int cols = rsmd.getColumnCount();
+            String[] colName = new String[cols];
+            for (int i = 0; i < cols; i++) {
+                colName[i] = rsmd.getColumnLabel(i + 1);
+
+            }
+            model.setColumnIdentifiers(colName);
+
+
+            //adding each row's value from lms database to your table
+            while (rs.next()) {
+                String rank_name = rs.getString(1);
+                String daily_fine = rs.getString(2);
+                String borrow_period = rs.getString(3);
+                String renewal_limit = rs.getString(4);
+                String borrow_limit = rs.getString(5);
+
+
+                String[] row = {rank_name, daily_fine, borrow_period, renewal_limit, borrow_limit};
+                model.addRow(row);
+            }
+            rankTable.setModel(model);
+
+
+        } catch (Exception exception) {
+            System.out.println("Error: " + exception.getMessage());
+        }
+
     }
 
     boolean UserIDInvalid(String userID) {

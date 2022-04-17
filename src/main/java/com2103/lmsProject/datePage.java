@@ -102,7 +102,7 @@ public class datePage extends JFrame {
         final JLabel label1 = new JLabel();
         Font label1Font = this.$$$getFont$$$(null, -1, 20, label1.getFont());
         if (label1Font != null) label1.setFont(label1Font);
-        label1.setText("The current date  is: (DD-MM-YYYY)");
+        label1.setText("The current date  is: (YYYY-MM-DD)");
         Panel1.add(label1, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_NORTHWEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         dateShown = new JTextField();
         Font dateShownFont = this.$$$getFont$$$(null, -1, 20, dateShown.getFont());
