@@ -71,7 +71,7 @@
         </constraints>
         <properties>
           <font size="20"/>
-          <text value="Search / Show All"/>
+          <text value="Search-Show All"/>
         </properties>
       </component>
       <component id="1c375" class="javax.swing.JButton" binding="showIssueButton">
