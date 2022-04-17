@@ -187,7 +187,7 @@ public class rankPage {
         try {
 
             //use preparedStatement instead of createStatement
-            PreparedStatement ps = connection.prepareStatement("SELECT b.rank_name, b.daily_fine, b.borrow_period, b.renewal_limit, b.borrow_limit From borrow_rule b");
+            PreparedStatement ps = connection.prepareStatement("SELECT b.rank_name, b.daily_fine, b.borrow_period, b.renewal_limit as 'book renewal limit', b.borrow_limit From borrow_rule b");
 
             ResultSet rs = ps.executeQuery();
             ResultSetMetaData rsmd = rs.getMetaData();

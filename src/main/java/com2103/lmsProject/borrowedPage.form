@@ -81,7 +81,7 @@
         <properties>
           <font size="20"/>
           <horizontalAlignment value="0"/>
-          <text value="Show issue record"/>
+          <text value="Show Late Return"/>
         </properties>
       </component>
       <component id="57232" class="javax.swing.JButton" binding="borrowButton" default-binding="true">

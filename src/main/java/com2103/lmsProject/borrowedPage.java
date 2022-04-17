@@ -167,20 +167,28 @@ public class borrowedPage extends JFrame {
                 reader.close();
 
                 PreparedStatement ps = con.prepareStatement(
-                        "SELECT " +
-                                "b.borrower_id, u.user_name," +
-                                "bk.book_id, b.title, " +
-                                "b.borrow_date, b.return_date, " +
-                                "(bpf.borrow_period - DATEDIFF(IF(b.return_date,b.return_date,?), b.borrow_date)) AS `period remaining`, " +
-                                "b.due_date " +
+                        "SELECT \n" +
+                                "b.borrower_id, \n" +
+                                "u.user_name,\n" +
+                                "bk.book_id, \n" +
+                                "b.title, \n" +
+                                "b.borrow_date, \n" +
+                                "b.return_date, \n" +
+                                "abs(bpf.borrow_period - DATEDIFF(IF(b.return_date,b.return_date,?), b.borrow_date)) AS `days late`, \n" +
+                                "(bpf.daily_fine * abs(bpf.borrow_period - DATEDIFF(IF(b.return_date,b.return_date,?), b.borrow_date))) as `overdue fine`,\n" +
+                                "b.due_date \n" +
                                 "FROM borrowed_books b, borrow_period_fine bpf, users u, books bk\n" +
                                 "WHERE \n" +
                                 "b.due_date < ? AND\n" +
                                 "b.borrower_id = bpf.user_id AND\n" +
-                                "b.borrower_id = u.user_id \n" +
-                                "ORDER BY b.borrow_date DESC;");
+                                "b.borrower_id = u.user_id AND\n" +
+                                "u.user_id = b.borrower_id AND\n" +
+                                "b.title = bk.title " +
+                                "having `days late` > 0 " +
+                                "ORDER BY `days late` DESC");
                 ps.setDate(1, Date.valueOf(date));
                 ps.setDate(2, Date.valueOf(date));
+                ps.setDate(3, Date.valueOf(date));
 
                 System.out.println(ps);
                 ResultSet rs = ps.executeQuery();
@@ -196,15 +204,16 @@ public class borrowedPage extends JFrame {
                 model.setColumnIdentifiers(colName);
 
                 while (rs.next()) {
-                    String borrower_id = rs.getString(1);
-                    String user_name = rs.getString(2);
-                    String book_id = rs.getString(3);
-                    String book_title = rs.getString(4);
-                    String borrow_date = String.valueOf(rs.getDate(5));
-                    String return_date = Objects.equals(String.valueOf(rs.getDate(6)), "null") ? "not returned" : String.valueOf(rs.getDate(6));
-                    String period_remaining = rs.getInt(7) == 0 ? "on Due" : (Math.abs(rs.getInt(7)) + (rs.getInt(7) > 0 ? " days remaining" : " days late"));
-                    String due_date = String.valueOf(rs.getDate(8));
-                    String[] row = {borrower_id, user_name, book_id, book_title, borrow_date, return_date, period_remaining, due_date};
+                    String borrower_id = rs.getString("borrower_id");
+                    String user_name = rs.getString("user_name");
+                    String book_id = rs.getString("book_id");
+                    String title = rs.getString("title");
+                    String borrow_date = rs.getString("borrow_date");
+                    String return_date = rs.getDate("return_date") != null ? rs.getString("return_date") : "Not Returned";
+                    String days_late = rs.getString("days late");
+                    String overdue_fine = rs.getString("overdue fine");
+                    String due_date = rs.getString("due_date");
+                    String[] row = {borrower_id, user_name, book_id, title, borrow_date, return_date, days_late, overdue_fine, due_date};
                     model.addRow(row);
                 }
 
