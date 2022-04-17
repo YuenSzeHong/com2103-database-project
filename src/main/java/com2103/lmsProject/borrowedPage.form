@@ -8,15 +8,6 @@
     <properties/>
     <border type="none"/>
     <children>
-      <component id="67164" class="javax.swing.JLabel">
-        <constraints>
-          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties>
-          <font size="20"/>
-          <text value="Enter book ID"/>
-        </properties>
-      </component>
       <scrollpane id="6e5ff">
         <constraints>
           <grid row="2" column="0" row-span="1" col-span="4" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false">
@@ -35,36 +26,6 @@
           </component>
         </children>
       </scrollpane>
-      <component id="9c10f" class="javax.swing.JTextField" binding="bookIDField">
-        <constraints>
-          <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
-            <preferred-size width="200" height="-1"/>
-          </grid>
-        </constraints>
-        <properties>
-          <font size="20"/>
-          <text value=""/>
-        </properties>
-      </component>
-      <component id="de292" class="javax.swing.JLabel">
-        <constraints>
-          <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties>
-          <font size="20"/>
-          <text value="Enter borrower ID"/>
-        </properties>
-      </component>
-      <component id="38a0d" class="javax.swing.JTextField" binding="borrowerIDFIeld">
-        <constraints>
-          <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
-            <preferred-size width="200" height="-1"/>
-          </grid>
-        </constraints>
-        <properties>
-          <font size="20"/>
-        </properties>
-      </component>
       <component id="57232" class="javax.swing.JButton" binding="borrowButton" default-binding="true">
         <constraints>
           <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
@@ -72,15 +33,6 @@
         <properties>
           <font size="20"/>
           <text value="Borrow"/>
-        </properties>
-      </component>
-      <component id="6b817" class="javax.swing.JButton" binding="renewalButton" default-binding="true">
-        <constraints>
-          <grid row="3" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties>
-          <font size="20"/>
-          <text value="Renewal"/>
         </properties>
       </component>
       <component id="485cf" class="javax.swing.JButton" binding="SearchShowAllButton">
@@ -92,15 +44,6 @@
           <text value="Search / Show All"/>
         </properties>
       </component>
-      <component id="d6baf" class="javax.swing.JButton" binding="returnButton" default-binding="true">
-        <constraints>
-          <grid row="3" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties>
-          <font size="20"/>
-          <text value="Return"/>
-        </properties>
-      </component>
       <component id="1c375" class="javax.swing.JButton" binding="showIssueButton">
         <constraints>
           <grid row="3" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="1" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
@@ -109,6 +52,63 @@
           <font size="20"/>
           <horizontalAlignment value="0"/>
           <text value="Show Late Return"/>
+        </properties>
+      </component>
+      <component id="67164" class="javax.swing.JLabel">
+        <constraints>
+          <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <font size="20"/>
+          <text value="Enter book ID"/>
+        </properties>
+      </component>
+      <component id="38a0d" class="javax.swing.JTextField" binding="borrowerIDFIeld">
+        <constraints>
+          <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+            <preferred-size width="200" height="-1"/>
+          </grid>
+        </constraints>
+        <properties>
+          <font size="20"/>
+        </properties>
+      </component>
+      <component id="9c10f" class="javax.swing.JTextField" binding="bookIDField">
+        <constraints>
+          <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+            <preferred-size width="200" height="-1"/>
+          </grid>
+        </constraints>
+        <properties>
+          <font size="20"/>
+          <text value=""/>
+        </properties>
+      </component>
+      <component id="de292" class="javax.swing.JLabel">
+        <constraints>
+          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <font size="20"/>
+          <text value="Enter borrower ID"/>
+        </properties>
+      </component>
+      <component id="d6baf" class="javax.swing.JButton" binding="returnButton" default-binding="true">
+        <constraints>
+          <grid row="3" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <font size="20"/>
+          <text value="Return"/>
+        </properties>
+      </component>
+      <component id="6b817" class="javax.swing.JButton" binding="renewalButton" default-binding="true">
+        <constraints>
+          <grid row="3" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <font size="20"/>
+          <text value="Renewal"/>
         </properties>
       </component>
     </children>

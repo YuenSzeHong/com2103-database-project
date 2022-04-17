@@ -19,7 +19,6 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.util.Locale;
-import java.util.Objects;
 
 public class borrowedPage extends JFrame {
 
@@ -116,7 +115,7 @@ public class borrowedPage extends JFrame {
                     String book_id = String.valueOf(rs.getInt(3));
                     String book_title = rs.getString(4);
                     String borrow_date = String.valueOf(rs.getDate(5));
-                    String return_date = String.valueOf(rs.getDate(6));
+                    String return_date = rs.getDate(6) == null ? "Not Returned" : String.valueOf(rs.getDate(6));
                     String period_remaining = rs.getInt(7) == 0 ? "on Due" : (Math.abs(rs.getInt(7)) + (rs.getInt(7) > 0 ? " days remaining" : " days late"));
                     String due_date = String.valueOf(rs.getDate(8));
                     String[] row = {borrow_id, user_name, book_id, book_title, borrow_date, return_date, period_remaining, due_date};
@@ -224,19 +223,16 @@ public class borrowedPage extends JFrame {
                 System.out.println("Error when reading file: " + ioEx.getMessage());
             }
         });
-        renewalButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                try {
-                    String borrower_id = borrowerIDFIeld.getText();
-                    int book_id = Integer.parseInt(bookIDField.getText());
-                    if (borrower_id.isEmpty() || book_id <= 0) {
-                        JOptionPane.showMessageDialog(null, "Please enter valid borrower ID and book ID");
-                    }
-                    renewBook(borrower_id, book_id);
-                } catch (NumberFormatException nfe) {
-                    JOptionPane.showMessageDialog(null, "BookID is in number format!");
+        renewalButton.addActionListener(e -> {
+            try {
+                String borrower_id = borrowerIDFIeld.getText();
+                int book_id = Integer.parseInt(bookIDField.getText());
+                if (borrower_id.isEmpty() || book_id <= 0) {
+                    JOptionPane.showMessageDialog(null, "Please enter valid borrower ID and book ID");
                 }
+                renewBook(borrower_id, book_id);
+            } catch (NumberFormatException nfe) {
+                JOptionPane.showMessageDialog(null, "BookID is in number format!");
             }
         });
     }
@@ -267,6 +263,7 @@ public class borrowedPage extends JFrame {
                 JOptionPane.showMessageDialog(null, "Book not borrowed");
                 return;
             }
+            updateBorrowRecord();
             JOptionPane.showMessageDialog(null, "Return Successful");
         } catch (Exception exception) {
             System.out.println("Error: " + exception.getMessage());
@@ -327,6 +324,7 @@ public class borrowedPage extends JFrame {
             ps.setDate(3, Date.valueOf(date));
             System.out.println(ps);
             ps.executeUpdate();
+            updateBorrowRecord();
             JOptionPane.showMessageDialog(null, "Book Borrowed, return date is " + getReturnDate(borrower_id, book_id));
         } catch (Exception exception) {
             System.out.println("Error in Book Borrow: " + exception.getMessage());
@@ -350,7 +348,7 @@ public class borrowedPage extends JFrame {
             }
             PreparedStatement ps = con.prepareStatement(
                     "UPDATE borrow_records SET return_date = ?, " +
-                            "no_of_renewals = ?" +
+                            "no_of_renewals = ? " +
                             "WHERE borrower_id = ? " +
                             "AND book_id = ? " +
                             "AND return_date IS NULL;");
@@ -362,6 +360,7 @@ public class borrowedPage extends JFrame {
                 JOptionPane.showMessageDialog(null, "Book not borrowed");
                 return;
             }
+            updateBorrowRecord();
             JOptionPane.showMessageDialog(null, "Renew Successful");
         } catch (Exception exception) {
             System.out.println("Error: " + exception.getMessage());
@@ -407,6 +406,66 @@ public class borrowedPage extends JFrame {
         return date;
     }
 
+    void updateBorrowRecord() {
+        try {
+            LocalDate date = null;
+            FileReader reader = new FileReader("date.txt");
+            BufferedReader bufferedReader = new BufferedReader(reader);
+
+            String line;
+
+            while ((line = bufferedReader.readLine()) != null) {
+                date = Instant.parse(line).atZone(ZoneOffset.UTC).toLocalDate();
+            }
+            if (date == null) return;
+            reader.close();
+
+            PreparedStatement ps = con.prepareStatement(
+                    "SELECT " +
+                            "b.borrower_id, " +
+                            "u.user_name, " +
+                            "bk.book_id, " +
+                            "b.title, " +
+                            "b.borrow_date, " +
+                            "b.return_date, " +
+                            "(bpf.borrow_period - DATEDIFF(IF(b.return_date,b.return_date,?), b.borrow_date)) AS `period remaining`, " +
+                            "b.due_date " +
+                            "FROM borrowed_books b, borrow_period_fine bpf, users u, books bk\n" +
+                            "WHERE \n" +
+                            "b.borrower_id = bpf.user_id AND\n" +
+                            "b.borrower_id = u.user_id AND b.title = bk.title\n" +
+                            "ORDER BY b.borrow_date DESC;");
+            ps.setDate(1, Date.valueOf(date));
+            System.out.println(ps);
+            ResultSet rs = ps.executeQuery();
+            ResultSetMetaData rsmd = rs.getMetaData();
+            tbl_book.setModel(new DefaultTableModel());
+            DefaultTableModel model = (DefaultTableModel) tbl_book.getModel();
+
+            int cols = rsmd.getColumnCount();
+            System.out.println(cols);
+            String[] colName = new String[cols];
+            for (int i = 0; i < cols; i++)
+                colName[i] = rsmd.getColumnLabel(i + 1);
+            model.setColumnIdentifiers(colName);
+
+            while (rs.next()) {
+                String borrow_id = rs.getString(1);
+                String user_name = rs.getString(2);
+                String book_id = String.valueOf(rs.getInt(3));
+                String book_title = rs.getString(4);
+                String borrow_date = String.valueOf(rs.getDate(5));
+                String return_date = rs.getDate(6) == null ? "Not Returned" : String.valueOf(rs.getDate(6));
+                String period_remaining = rs.getInt(7) == 0 ? "on Due" : (Math.abs(rs.getInt(7)) + (rs.getInt(7) > 0 ? " days remaining" : " days late"));
+                String due_date = String.valueOf(rs.getDate(8));
+                String[] row = {borrow_id, user_name, book_id, book_title, borrow_date, return_date, period_remaining, due_date};
+                model.addRow(row);
+            }
+        } catch (SQLException | IOException e) {
+            System.out.println("Error when querying database: " + e.getMessage());
+        }
+    }
+
     private String getReturnDate(String borrower_id, int book_id) {
         try {
             PreparedStatement ps = con.prepareStatement(
@@ -445,59 +504,59 @@ public class borrowedPage extends JFrame {
      */
     private void $$$setupUI$$$() {
         panel1 = new JPanel();
-        panel1.setLayout(new GridLayoutManager(4, 3, new Insets(0, 0, 0, 0), -1, -1));
-        final JLabel label1 = new JLabel();
-        Font label1Font = this.$$$getFont$$$(null, -1, 20, label1.getFont());
-        if (label1Font != null) label1.setFont(label1Font);
-        label1.setText("Enter book ID");
-        panel1.add(label1, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        panel1.setLayout(new GridLayoutManager(4, 4, new Insets(0, 0, 0, 0), -1, -1));
         final JScrollPane scrollPane1 = new JScrollPane();
-        panel1.add(scrollPane1, new GridConstraints(2, 0, 1, 3, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, new Dimension(200, -1), null, 0, false));
+        panel1.add(scrollPane1, new GridConstraints(2, 0, 1, 4, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, new Dimension(200, -1), null, 0, false));
         tbl_book = new JTable();
         tbl_book.setAutoCreateRowSorter(true);
         Font tbl_bookFont = this.$$$getFont$$$(null, -1, 18, tbl_book.getFont());
         if (tbl_bookFont != null) tbl_book.setFont(tbl_bookFont);
         scrollPane1.setViewportView(tbl_book);
-        bookIDField = new JTextField();
-        Font bookIDFieldFont = this.$$$getFont$$$(null, -1, 20, bookIDField.getFont());
-        if (bookIDFieldFont != null) bookIDField.setFont(bookIDFieldFont);
-        bookIDField.setText("");
-        panel1.add(bookIDField, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(200, -1), null, 0, false));
-        final JLabel label2 = new JLabel();
-        Font label2Font = this.$$$getFont$$$(null, -1, 20, label2.getFont());
-        if (label2Font != null) label2.setFont(label2Font);
-        label2.setText("Enter borrower ID");
-        panel1.add(label2, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        borrowerIDFIeld = new JTextField();
-        Font borrowerIDFIeldFont = this.$$$getFont$$$(null, -1, 20, borrowerIDFIeld.getFont());
-        if (borrowerIDFIeldFont != null) borrowerIDFIeld.setFont(borrowerIDFIeldFont);
-        panel1.add(borrowerIDFIeld, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(200, -1), null, 0, false));
-        SearchShowAllButton = new JButton();
-        Font SearchShowAllButtonFont = this.$$$getFont$$$(null, -1, 20, SearchShowAllButton.getFont());
-        if (SearchShowAllButtonFont != null) SearchShowAllButton.setFont(SearchShowAllButtonFont);
-        SearchShowAllButton.setText("Search / Show All");
-        panel1.add(SearchShowAllButton, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, 1, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        showIssueButton = new JButton();
-        Font showIssueButtonFont = this.$$$getFont$$$(null, -1, 20, showIssueButton.getFont());
-        if (showIssueButtonFont != null) showIssueButton.setFont(showIssueButtonFont);
-        showIssueButton.setHorizontalAlignment(0);
-        showIssueButton.setText("Show Late Return");
-        panel1.add(showIssueButton, new GridConstraints(1, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, 1, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         borrowButton = new JButton();
         Font borrowButtonFont = this.$$$getFont$$$(null, -1, 20, borrowButton.getFont());
         if (borrowButtonFont != null) borrowButton.setFont(borrowButtonFont);
         borrowButton.setText("Borrow");
         panel1.add(borrowButton, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        SearchShowAllButton = new JButton();
+        Font SearchShowAllButtonFont = this.$$$getFont$$$(null, -1, 20, SearchShowAllButton.getFont());
+        if (SearchShowAllButtonFont != null) SearchShowAllButton.setFont(SearchShowAllButtonFont);
+        SearchShowAllButton.setText("Search / Show All");
+        panel1.add(SearchShowAllButton, new GridConstraints(1, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, 1, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        showIssueButton = new JButton();
+        Font showIssueButtonFont = this.$$$getFont$$$(null, -1, 20, showIssueButton.getFont());
+        if (showIssueButtonFont != null) showIssueButton.setFont(showIssueButtonFont);
+        showIssueButton.setHorizontalAlignment(0);
+        showIssueButton.setText("Show Late Return");
+        panel1.add(showIssueButton, new GridConstraints(3, 3, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, 1, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final JLabel label1 = new JLabel();
+        Font label1Font = this.$$$getFont$$$(null, -1, 20, label1.getFont());
+        if (label1Font != null) label1.setFont(label1Font);
+        label1.setText("Enter book ID");
+        panel1.add(label1, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        borrowerIDFIeld = new JTextField();
+        Font borrowerIDFIeldFont = this.$$$getFont$$$(null, -1, 20, borrowerIDFIeld.getFont());
+        if (borrowerIDFIeldFont != null) borrowerIDFIeld.setFont(borrowerIDFIeldFont);
+        panel1.add(borrowerIDFIeld, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(200, -1), null, 0, false));
+        bookIDField = new JTextField();
+        Font bookIDFieldFont = this.$$$getFont$$$(null, -1, 20, bookIDField.getFont());
+        if (bookIDFieldFont != null) bookIDField.setFont(bookIDFieldFont);
+        bookIDField.setText("");
+        panel1.add(bookIDField, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(200, -1), null, 0, false));
+        final JLabel label2 = new JLabel();
+        Font label2Font = this.$$$getFont$$$(null, -1, 20, label2.getFont());
+        if (label2Font != null) label2.setFont(label2Font);
+        label2.setText("Enter borrower ID");
+        panel1.add(label2, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         returnButton = new JButton();
         Font returnButtonFont = this.$$$getFont$$$(null, -1, 20, returnButton.getFont());
         if (returnButtonFont != null) returnButton.setFont(returnButtonFont);
         returnButton.setText("Return");
-        panel1.add(returnButton, new GridConstraints(3, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        panel1.add(returnButton, new GridConstraints(3, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         renewalButton = new JButton();
         Font renewalButtonFont = this.$$$getFont$$$(null, -1, 20, renewalButton.getFont());
         if (renewalButtonFont != null) renewalButton.setFont(renewalButtonFont);
         renewalButton.setText("Renewal");
-        panel1.add(renewalButton, new GridConstraints(3, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        panel1.add(renewalButton, new GridConstraints(3, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     }
 
     /**
@@ -528,5 +587,4 @@ public class borrowedPage extends JFrame {
     public JComponent $$$getRootComponent$$$() {
         return panel1;
     }
-
 }
