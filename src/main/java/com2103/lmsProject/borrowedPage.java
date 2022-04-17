@@ -8,6 +8,8 @@ import javax.swing.plaf.FontUIResource;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.text.StyleContext;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -31,6 +33,7 @@ public class borrowedPage extends JFrame {
     private JButton borrowButton;
     private JButton returnButton;
     private JButton showIssueButton;
+    private JButton renewalButton;
     private FileReader reader;
     private final File file;
     private final Connection con;
@@ -212,6 +215,21 @@ public class borrowedPage extends JFrame {
                 System.out.println("Error when reading file: " + ioEx.getMessage());
             }
         });
+        renewalButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    String borrower_id = borrowerIDFIeld.getText();
+                    int book_id = Integer.parseInt(bookIDField.getText());
+                    if (borrower_id.isEmpty() || book_id <= 0) {
+                        JOptionPane.showMessageDialog(null, "Please enter valid borrower ID and book ID");
+                    }
+                    renewBook(borrower_id, book_id);
+                } catch (NumberFormatException nfe) {
+                    JOptionPane.showMessageDialog(null, "BookID is in number format!");
+                }
+            }
+        });
     }
 
     boolean UserIDInvalid(String userID) {
@@ -304,6 +322,68 @@ public class borrowedPage extends JFrame {
         } catch (Exception exception) {
             System.out.println("Error in Book Borrow: " + exception.getMessage());
         }
+    }
+
+    private void renewBook(String borrower_id, int book_id) {
+        try {
+            int currRenewalNo = getCurrentRenewalNo(borrower_id, book_id);
+            int maxRenewalNo = getMaxRenewalNo(borrower_id, book_id);
+            if (currRenewalNo == -1) {
+                JOptionPane.showMessageDialog(null, "Book not borrowed");
+                return;
+            }
+            if (maxRenewalNo == -1) {
+                JOptionPane.showMessageDialog(null, "error in max renewal no");
+                return;
+            }
+            if (currRenewalNo >= maxRenewalNo) {
+                JOptionPane.showMessageDialog(null, "You have exceeded your renewal limit "+maxRenewalNo);
+            }
+            PreparedStatement ps = con.prepareStatement(
+                    "UPDATE borrow_records SET return_date = ?, " +
+                            "no_of_renewals = ?" +
+                            "WHERE borrower_id = ? " +
+                            "AND book_id = ? " +
+                            "AND return_date IS NULL;");
+            ps.setDate(1, Date.valueOf(getLocalDate()));
+            ps.setInt(2, currRenewalNo + 1);
+            ps.setString(3, borrower_id);
+            ps.setInt(4, book_id);
+            if (ps.executeUpdate() == 0) {
+                JOptionPane.showMessageDialog(null, "Book not borrowed");
+                return;
+            }
+            JOptionPane.showMessageDialog(null, "Renew Successful");
+        } catch (Exception exception) {
+            System.out.println("Error: " + exception.getMessage());
+        }
+    }
+
+    private int getMaxRenewalNo(String borrower_id, int book_id) {
+        try {
+            PreparedStatement ps = con.prepareStatement("select renewal_limit from borrow_period_fine where user_id = ?;");
+            ps.setString(1, borrower_id);
+            ResultSet rs = ps.executeQuery();
+            rs.next();
+            return rs.getInt(1);
+        } catch (SQLException e) {
+            System.out.println("Exception caught: " + e.getMessage());
+        }
+        return -1;
+    }
+
+    private int getCurrentRenewalNo(String borrower_id, int book_id) {
+        try {
+            PreparedStatement ps = con.prepareStatement("SELECT no_of_renewals FROM borrow_records WHERE borrower_id = ? AND book_id = ? AND return_date IS NULL;");
+            ps.setString(1, borrower_id);
+            ps.setInt(2, book_id);
+            ResultSet rs = ps.executeQuery();
+            rs.next();
+            return rs.getInt(1);
+        } catch (SQLException sqEx) {
+            System.out.println("Error when querying database: " + sqEx.getMessage());
+        }
+        return -1;
     }
 
     private LocalDate getLocalDate() throws IOException {
