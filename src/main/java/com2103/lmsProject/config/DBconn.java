@@ -7,7 +7,6 @@ import java.sql.DriverManager;
 public class DBconn {
 
     private Connection connection;
-
     public DBconn() {
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
